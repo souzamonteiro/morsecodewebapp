@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Morse Code Learning App with CW Key Support</title>
+    <style>
+        /* Base styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            margin-top: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .subtitle {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        /* Tab navigation */
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .tab.active {
+            border-bottom: 3px solid #fdbb2d;
+            color: #fdbb2d;
+        }
+        
+        .tab:hover:not(.active) {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Tab content */
+        .tab-content {
+            display: none;
+            padding: 20px 0;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Morse reference table */
+        .morse-table {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .morse-item {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        
+        .morse-item:hover {
+            transform: scale(1.05);
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .morse-char {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .morse-code {
+            font-family: monospace;
+            margin-top: 5px;
+            color: #fdbb2d;
+        }
+        
+        /* Practice area */
+        .practice-area {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        label {
+            font-weight: bold;
+        }
+        
+        input, textarea, select, button {
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+        }
+        
+        button {
+            background-color: #fdbb2d;
+            color: #1a2a6c;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background-color: #ffcc44;
+            transform: translateY(-2px);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            min-height: 60px;
+        }
+        
+        /* Flash card */
+        .flashcard {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .flashcard:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+        
+        .flashcard-char {
+            font-size: 4rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        
+        .flashcard-code {
+            font-family: monospace;
+            font-size: 1.5rem;
+            color: #fdbb2d;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        /* Progress tracking */
+        .progress-container {
+            margin-top: 30px;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: #fdbb2d;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #fdbb2d;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        /* CW Key Section */
+        .cw-key-section {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .cw-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #b21f1f;
+        }
+        
+        .status-indicator.connected {
+            background-color: #4CAF50;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .cw-output {
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            min-height: 100px;
+            font-family: monospace;
+            font-size: 1.2rem;
+            margin-top: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .cw-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .cw-controls button {
+            flex: 1;
+        }
+        
+        .key-settings {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .key-test-area {
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 20px;
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .key-test-area.active {
+            border-color: #fdbb2d;
+            background-color: rgba(253, 187, 45, 0.1);
+        }
+        
+        /* Responsive design */
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .tabs {
+                flex-wrap: wrap;
+            }
+            
+            .tab {
+                flex: 1;
+                min-width: 120px;
+                text-align: center;
+            }
+            
+            .morse-table {
+                grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+            }
+            
+            .flashcard-char {
+                font-size: 3rem;
+            }
+            
+            .key-settings {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Morse Code Learning App</h1>
+    <p class="subtitle">Learn, practice, and master Morse code with CW Key support</p>
+    
+    <div class="container">
+        <!-- Tab navigation -->
+        <div class="tabs">
+            <div class="tab active" data-tab="learn">Learn</div>
+            <div class="tab" data-tab="practice">Practice</div>
+            <div class="tab" data-tab="cwkey">CW Key</div>
+            <div class="tab" data-tab="flashcards">Flashcards</div>
+            <div class="tab" data-tab="progress">Progress</div>
+        </div>
+        
+        <!-- Learn tab -->
+        <div class="tab-content active" id="learn">
+            <h2>Morse Code Reference</h2>
+            <p>Morse code is a method of transmitting text information as a series of on-off tones, lights, or clicks.</p>
+            
+            <div class="morse-table" id="morseTable">
+                <!-- Morse code table will be generated by JavaScript -->
+            </div>
+        </div>
+        
+        <!-- Practice tab -->
+        <div class="tab-content" id="practice">
+            <h2>Practice Morse Code</h2>
+            <div class="practice-area">
+                <div class="input-group">
+                    <label for="textInput">Text to convert to Morse:</label>
+                    <textarea id="textInput" placeholder="Enter text to convert to Morse code"></textarea>
+                    <button id="convertToMorse">Convert to Morse</button>
+                </div>
+                
+                <div class="input-group">
+                    <label for="morseInput">Morse code to decode:</label>
+                    <textarea id="morseInput" placeholder="Enter Morse code (use . for dots and - for dashes, separate letters with spaces)"></textarea>
+                    <button id="convertToText">Convert to Text</button>
+                </div>
+                
+                <div class="result" id="practiceResult">
+                    Result will appear here
+                </div>
+            </div>
+        </div>
+        
+        <!-- CW Key tab -->
+        <div class="tab-content" id="cwkey">
+            <h2>CW Key Interface</h2>
+            <p>Connect your USB CW key or use the keyboard as a virtual key</p>
+            
+            <div class="cw-key-section">
+                <div class="cw-status">
+                    <div class="status-indicator" id="statusIndicator"></div>
+                    <span id="statusText">CW Key not connected</span>
+                </div>
+                
+                <div class="input-group">
+                    <label for="cwSpeed">CW Speed (WPM):</label>
+                    <input type="range" id="cwSpeed" min="5" max="30" value="15">
+                    <span id="speedValue">15 WPM</span>
+                </div>
+                
+                <div class="key-settings">
+                    <div class="input-group">
+                        <label for="keyMode">Key Mode:</label>
+                        <select id="keyMode">
+                            <option value="keyboard">Keyboard (Spacebar)</option>
+                            <option value="serial">USB Serial Key</option>
+                            <option value="audio">Audio Practice</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="serialPort">Serial Port (if applicable):</label>
+                        <select id="serialPort">
+                            <option value="">No ports available</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="cw-controls">
+                    <button id="connectKey">Connect Key</button>
+                    <button id="clearOutput">Clear Output</button>
+                    <button id="practiceMode">Practice Mode</button>
+                </div>
+                
+                <div class="key-test-area" id="keyTestArea">
+                    <p>Press your CW key or Spacebar to test</p>
+                    <p class="hidden" id="keyOutput"></p>
+                </div>
+                
+                <div class="cw-output" id="cwOutput">
+                    CW output will appear here...
+                </div>
+            </div>
+        </div>
+        
+        <!-- Flashcards tab -->
+        <div class="tab-content" id="flashcards">
+            <h2>Morse Code Flashcards</h2>
+            <p>Click on the card to reveal the Morse code</p>
+            
+            <div class="flashcard" id="flashcard">
+                <div class="flashcard-char" id="flashcardChar">A</div>
+                <div class="flashcard-code hidden" id="flashcardCode">.-</div>
+            </div>
+            
+            <div class="controls">
+                <button id="prevCard">Previous</button>
+                <button id="nextCard">Next</button>
+                <button id="flipCard">Reveal Code</button>
+            </div>
+            
+            <div class="input-group" style="margin-top: 20px;">
+                <label for="cardType">Card Type:</label>
+                <select id="cardType">
+                    <option value="letters">Letters Only</option>
+                    <option value="numbers">Numbers Only</option>
+                    <option value="both">Letters & Numbers</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Progress tab -->
+        <div class="tab-content" id="progress">
+            <h2>Your Learning Progress</h2>
+            <p>Track your Morse code learning journey</p>
+            
+            <div class="progress-container">
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="lettersLearned">0</div>
+                        <div class="stat-label">Letters Learned</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="practiceSessions">0</div>
+                        <div class="stat-label">Practice Sessions</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="flashcardsViewed">0</div>
+                        <div class="stat-label">Flashcards Viewed</div>
+                    </div>
+                </div>
+                
+                <h3 style="margin-top: 30px;">Overall Progress</h3>
+                <div class="progress-bar">
+                    <div class="progress" id="overallProgress"></div>
+                </div>
+                
+                <button id="resetProgress" style="margin-top: 20px; background-color: #b21f1f;">Reset Progress</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Morse code dictionary
+        const morseCode = {
+            'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.', 
+            'G': '--.', 'H': '....', 'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..', 
+            'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.', 
+            'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-', 
+            'Y': '-.--', 'Z': '--..', 
+            '0': '-----', '1': '.----', '2': '..---', '3': '...--', '4': '....-', 
+            '5': '.....', '6': '-....', '7': '--...', '8': '---..', '9': '----.',
+            '.': '.-.-.-', ',': '--..--', '?': '..--..', "'": '.----.', '!': '-.-.--', 
+            '/': '-..-.', '(': '-.--.', ')': '-.--.-', '&': '.-...', ':': '---...', 
+            ';': '-.-.-.', '=': '-...-', '+': '.-.-.', '-': '-....-', '_': '..--.-', 
+            '"': '.-..-.', '$': '...-..-', '@': '.--.-.', ' ': '/'
+        };
+
+        // Reverse dictionary for decoding
+        const reverseMorse = {};
+        for (const [key, value] of Object.entries(morseCode)) {
+            reverseMorse[value] = key;
+        }
+
+        // User progress data
+        let userProgress = {
+            lettersLearned: 0,
+            practiceSessions: 0,
+            flashcardsViewed: 0,
+            learnedChars: new Set()
+        };
+
+        // Current flashcard index
+        let currentCardIndex = 0;
+        let currentCardSet = [];
+
+        // CW Key state
+        let cwKeyState = {
+            connected: false,
+            port: null,
+            reader: null,
+            writer: null,
+            currentCharacter: '',
+            currentWord: '',
+            outputText: '',
+            speed: 15, // words per minute
+            dotDuration: 0, // calculated based on speed
+            dashDuration: 0, // calculated based on speed
+            spaceDuration: 0, // calculated based on speed
+            keyDownTime: 0,
+            practiceMode: false,
+            practiceText: '',
+            practiceIndex: 0
+        };
+
+        // DOM elements
+        const tabElements = document.querySelectorAll('.tab');
+        const tabContentElements = document.querySelectorAll('.tab-content');
+        const morseTableElement = document.getElementById('morseTable');
+        const textInputElement = document.getElementById('textInput');
+        const morseInputElement = document.getElementById('morseInput');
+        const convertToMorseButton = document.getElementById('convertToMorse');
+        const convertToTextButton = document.getElementById('convertToText');
+        const practiceResultElement = document.getElementById('practiceResult');
+        const flashcardElement = document.getElementById('flashcard');
+        const flashcardCharElement = document.getElementById('flashcardChar');
+        const flashcardCodeElement = document.getElementById('flashcardCode');
+        const prevCardButton = document.getElementById('prevCard');
+        const nextCardButton = document.getElementById('nextCard');
+        const flipCardButton = document.getElementById('flipCard');
+        const cardTypeElement = document.getElementById('cardType');
+        const lettersLearnedElement = document.getElementById('lettersLearned');
+        const practiceSessionsElement = document.getElementById('practiceSessions');
+        const flashcardsViewedElement = document.getElementById('flashcardsViewed');
+        const overallProgressElement = document.getElementById('overallProgress');
+        const resetProgressButton = document.getElementById('resetProgress');
+        
+        // CW Key elements
+        const statusIndicator = document.getElementById('statusIndicator');
+        const statusText = document.getElementById('statusText');
+        const cwSpeed = document.getElementById('cwSpeed');
+        const speedValue = document.getElementById('speedValue');
+        const keyMode = document.getElementById('keyMode');
+        const serialPort = document.getElementById('serialPort');
+        const connectKeyButton = document.getElementById('connectKey');
+        const clearOutputButton = document.getElementById('clearOutput');
+        const practiceModeButton = document.getElementById('practiceMode');
+        const keyTestArea = document.getElementById('keyTestArea');
+        const keyOutput = document.getElementById('keyOutput');
+        const cwOutput = document.getElementById('cwOutput');
+
+        // Initialize the app
+        function init() {
+            // Load user progress from localStorage
+            loadProgress();
+            
+            // Generate Morse code table
+            generateMorseTable();
+            
+            // Initialize flashcards
+            generateCardSet();
+            showCard();
+            
+            // Initialize CW Key
+            initCwKey();
+            
+            // Update progress display
+            updateProgressDisplay();
+            
+            // Set up event listeners
+            setupEventListeners();
+        }
+
+        // Initialize CW Key functionality
+        function initCwKey() {
+            // Calculate initial durations based on speed
+            updateCwTiming();
+            
+            // Update speed display
+            speedValue.textContent = `${cwSpeed.value} WPM`;
+            
+            // Check for Web Serial API support
+            if ('serial' in navigator) {
+                statusText.textContent = 'Web Serial API supported';
+            } else {
+                statusText.textContent = 'Web Serial API not supported - use keyboard mode';
+                keyMode.value = 'keyboard';
+                serialPort.disabled = true;
+            }
+            
+            // Load practice text
+            cwKeyState.practiceText = generatePracticeText();
+        }
+
+        // Update CW timing based on speed (WPM)
+        function updateCwTiming() {
+            // Standard PARIS calculation: 50 time units per word
+            // Dot = 1 unit, Dash = 3 units, intra-character space = 1 unit
+            // Character space = 3 units, Word space = 7 units
+            const timeUnit = 1200 / cwKeyState.speed; // milliseconds per unit
+            
+            cwKeyState.dotDuration = timeUnit;
+            cwKeyState.dashDuration = timeUnit * 3;
+            cwKeyState.spaceDuration = timeUnit * 7;
+        }
+
+        // Generate random practice text
+        function generatePracticeText() {
+            const words = [
+                'THE', 'QUICK', 'BROWN', 'FOX', 'JUMPS', 'OVER', 'LAZY', 'DOG',
+                'CODE', 'MORSE', 'LEARN', 'PRACTICE', 'SKILL', 'AMATEUR', 'RADIO',
+                'SIGNAL', 'TRANSMIT', 'RECEIVE', 'MESSAGE', 'COMMUNICATION'
+            ];
+            
+            let text = '';
+            for (let i = 0; i < 5; i++) {
+                text += words[Math.floor(Math.random() * words.length)] + ' ';
+            }
+            return text.trim();
+        }
+
+        // Connect to serial port for CW key
+        async function connectSerial() {
+            try {
+                // Request serial port
+                const port = await navigator.serial.requestPort();
+                await port.open({ baudRate: 9600 });
+                
+                cwKeyState.port = port;
+                cwKeyState.connected = true;
+                
+                // Update UI
+                statusIndicator.classList.add('connected');
+                statusText.textContent = `Connected to ${port.getInfo().usbProductId || 'CW Key'}`;
+                connectKeyButton.textContent = 'Disconnect Key';
+                
+                // Set up reading from the port
+                readFromSerialPort(port);
+                
+            } catch (error) {
+                console.error('Error connecting to serial port:', error);
+                statusText.textContent = `Connection failed: ${error.message}`;
+            }
+        }
+
+        // Read data from serial port
+        async function readFromSerialPort(port) {
+            try {
+                const reader = port.readable.getReader();
+                cwKeyState.reader = reader;
+                
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) {
+                        reader.releaseLock();
+                        break;
+                    }
+                    
+                    // Process incoming data (assuming simple key up/down signals)
+                    if (value) {
+                        // For a typical CW key, we might get:
+                        // - A specific byte when key is pressed
+                        // - Another when key is released
+                        // This would depend on the specific hardware
+                        handleKeyInput(value);
+                    }
+                }
+            } catch (error) {
+                console.error('Error reading from serial port:', error);
+                disconnectSerial();
+            }
+        }
+
+        // Handle key input from serial or other sources
+        function handleKeyInput(data) {
+            // This is a simplified implementation
+            // Real implementation would depend on the specific hardware protocol
+            
+            // For demonstration, we'll assume:
+            // - Byte 0x01 means key down
+            // - Byte 0x00 means key up
+            if (data[0] === 0x01) {
+                keyDown();
+            } else if (data[0] === 0x00) {
+                keyUp();
+            }
+        }
+
+        // Disconnect from serial port
+        async function disconnectSerial() {
+            if (cwKeyState.reader) {
+                await cwKeyState.reader.cancel();
+                cwKeyState.reader = null;
+            }
+            
+            if (cwKeyState.writer) {
+                await cwKeyState.writer.close();
+                cwKeyState.writer = null;
+            }
+            
+            if (cwKeyState.port) {
+                await cwKeyState.port.close();
+                cwKeyState.port = null;
+            }
+            
+            cwKeyState.connected = false;
+            statusIndicator.classList.remove('connected');
+            statusText.textContent = 'CW Key disconnected';
+            connectKeyButton.textContent = 'Connect Key';
+        }
+
+        // Handle key down (pressing the CW key)
+        function keyDown() {
+            cwKeyState.keyDownTime = Date.now();
+            keyTestArea.classList.add('active');
+            keyOutput.textContent = 'KEY DOWN';
+            keyOutput.classList.remove('hidden');
+        }
+
+        // Handle key up (releasing the CW key)
+        function keyUp() {
+            const duration = Date.now() - cwKeyState.keyDownTime;
+            keyTestArea.classList.remove('active');
+            keyOutput.textContent = `KEY UP (${duration}ms)`;
+            
+            // Determine if it's a dot or dash based on duration
+            if (duration < cwKeyState.dotDuration * 2) {
+                // Dot
+                cwKeyState.currentCharacter += '.';
+                keyOutput.textContent += ' - DOT';
+            } else {
+                // Dash
+                cwKeyState.currentCharacter += '-';
+                keyOutput.textContent += ' - DASH';
+            }
+            
+            // Update output display
+            updateCwOutput();
+        }
+
+        // Update CW output display
+        function updateCwOutput() {
+            let displayText = cwKeyState.outputText;
+            
+            if (cwKeyState.currentWord) {
+                displayText += cwKeyState.currentWord + ' ';
+            }
+            
+            if (cwKeyState.currentCharacter) {
+                displayText += `[${cwKeyState.currentCharacter}]`;
+            }
+            
+            cwOutput.textContent = displayText || 'CW output will appear here...';
+            
+            // If in practice mode, check if the user is matching the practice text
+            if (cwKeyState.practiceMode) {
+                checkPracticeProgress();
+            }
+        }
+
+        // Check practice progress
+        function checkPracticeProgress() {
+            const expectedChar = reverseMorse[cwKeyState.currentCharacter];
+            const targetChar = cwKeyState.practiceText[cwKeyState.practiceIndex];
+            
+            if (expectedChar === targetChar) {
+                // Correct character
+                cwKeyState.currentWord += expectedChar;
+                cwKeyState.practiceIndex++;
+                cwKeyState.currentCharacter = '';
+                
+                // If we've completed the word, move to next word
+                if (cwKeyState.practiceText[cwKeyState.practiceIndex] === ' ') {
+                    cwKeyState.outputText += cwKeyState.currentWord + ' ';
+                    cwKeyState.currentWord = '';
+                    cwKeyState.practiceIndex++;
+                }
+                
+                updateCwOutput();
+            }
+            // If incorrect, we wait for the user to complete the character
+        }
+
+        // Space between characters
+        function processCharacterSpace() {
+            if (cwKeyState.currentCharacter) {
+                const character = reverseMorse[cwKeyState.currentCharacter];
+                if (character) {
+                    cwKeyState.currentWord += character;
+                    userProgress.learnedChars.add(character);
+                } else {
+                    cwKeyState.currentWord += '?';
+                }
+                cwKeyState.currentCharacter = '';
+                updateCwOutput();
+            }
+        }
+
+        // Space between words
+        function processWordSpace() {
+            processCharacterSpace();
+            if (cwKeyState.currentWord) {
+                cwKeyState.outputText += cwKeyState.currentWord + ' ';
+                cwKeyState.currentWord = '';
+                updateCwOutput();
+            }
+        }
+
+        // Generate Morse code table
+        function generateMorseTable() {
+            // Clear existing content
+            morseTableElement.innerHTML = '';
+            
+            // Create table items for each character
+            for (const [char, code] of Object.entries(morseCode)) {
+                const item = document.createElement('div');
+                item.className = 'morse-item';
+                
+                const charElement = document.createElement('div');
+                charElement.className = 'morse-char';
+                charElement.textContent = char;
+                
+                const codeElement = document.createElement('div');
+                codeElement.className = 'morse-code';
+                codeElement.textContent = code;
+                
+                item.appendChild(charElement);
+                item.appendChild(codeElement);
+                
+                // Add click event to mark as learned
+                item.addEventListener('click', () => {
+                    if (userProgress.learnedChars.has(char)) {
+                        userProgress.learnedChars.delete(char);
+                        item.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                    } else {
+                        userProgress.learnedChars.add(char);
+                        item.style.backgroundColor = 'rgba(253, 187, 45, 0.3)';
+                        userProgress.lettersLearned = userProgress.learnedChars.size;
+                    }
+                    updateProgressDisplay();
+                    saveProgress();
+                });
+                
+                // Highlight if already learned
+                if (userProgress.learnedChars.has(char)) {
+                    item.style.backgroundColor = 'rgba(253, 187, 45, 0.3)';
+                }
+                
+                morseTableElement.appendChild(item);
+            }
+        }
+
+        // Convert text to Morse code
+        function textToMorse(text) {
+            return text.toUpperCase().split('').map(char => {
+                return morseCode[char] || '?';
+            }).join(' ');
+        }
+
+        // Convert Morse code to text
+        function morseToText(morse) {
+            return morse.split(' ').map(code => {
+                return reverseMorse[code] || '?';
+            }).join('');
+        }
+
+        // Generate card set based on selected type
+        function generateCardSet() {
+            const cardType = cardTypeElement.value;
+            currentCardSet = [];
+            
+            if (cardType === 'letters') {
+                // Add only letters
+                for (let i = 65; i <= 90; i++) {
+                    currentCardSet.push(String.fromCharCode(i));
+                }
+            } else if (cardType === 'numbers') {
+                // Add only numbers
+                for (let i = 0; i <= 9; i++) {
+                    currentCardSet.push(i.toString());
+                }
+            } else {
+                // Add both letters and numbers
+                for (let i = 65; i <= 90; i++) {
+                    currentCardSet.push(String.fromCharCode(i));
+                }
+                for (let i = 0; i <= 9; i++) {
+                    currentCardSet.push(i.toString());
+                }
+            }
+            
+            // Reset card index
+            currentCardIndex = 0;
+        }
+
+        // Show current flashcard
+        function showCard() {
+            if (currentCardSet.length === 0) return;
+            
+            const char = currentCardSet[currentCardIndex];
+            flashcardCharElement.textContent = char;
+            flashcardCodeElement.textContent = morseCode[char];
+            
+            // Hide the code initially
+            flashcardCodeElement.classList.add('hidden');
+            
+            // Increment flashcards viewed counter
+            userProgress.flashcardsViewed++;
+            updateProgressDisplay();
+            saveProgress();
+        }
+
+        // Update progress display
+        function updateProgressDisplay() {
+            lettersLearnedElement.textContent = userProgress.lettersLearned;
+            practiceSessionsElement.textContent = userProgress.practiceSessions;
+            flashcardsViewedElement.textContent = userProgress.flashcardsViewed;
+            
+            // Calculate overall progress (based on learned characters)
+            const totalChars = Object.keys(morseCode).length;
+            const progressPercent = (userProgress.learnedChars.size / totalChars) * 100;
+            overallProgressElement.style.width = `${progressPercent}%`;
+        }
+
+        // Load progress from localStorage
+        function loadProgress() {
+            const savedProgress = localStorage.getItem('morseCodeProgress');
+            if (savedProgress) {
+                const parsed = JSON.parse(savedProgress);
+                userProgress.lettersLearned = parsed.lettersLearned || 0;
+                userProgress.practiceSessions = parsed.practiceSessions || 0;
+                userProgress.flashcardsViewed = parsed.flashcardsViewed || 0;
+                userProgress.learnedChars = new Set(parsed.learnedChars || []);
+            }
+        }
+
+        // Save progress to localStorage
+        function saveProgress() {
+            localStorage.setItem('morseCodeProgress', JSON.stringify({
+                lettersLearned: userProgress.lettersLearned,
+                practiceSessions: userProgress.practiceSessions,
+                flashcardsViewed: userProgress.flashcardsViewed,
+                learnedChars: Array.from(userProgress.learnedChars)
+            }));
+        }
+
+        // Set up event listeners
+        function setupEventListeners() {
+            // Tab navigation
+            tabElements.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active class from all tabs and content
+                    tabElements.forEach(t => t.classList.remove('active'));
+                    tabContentElements.forEach(c => c.classList.remove('active'));
+                    
+                    // Add active class to clicked tab and corresponding content
+                    tab.classList.add('active');
+                    document.getElementById(tab.dataset.tab).classList.add('active');
+                });
+            });
+            
+            // Convert text to Morse
+            convertToMorseButton.addEventListener('click', () => {
+                const text = textInputElement.value;
+                if (text.trim()) {
+                    const morse = textToMorse(text);
+                    practiceResultElement.textContent = morse;
+                    userProgress.practiceSessions++;
+                    updateProgressDisplay();
+                    saveProgress();
+                }
+            });
+            
+            // Convert Morse to text
+            convertToTextButton.addEventListener('click', () => {
+                const morse = morseInputElement.value;
+                if (morse.trim()) {
+                    const text = morseToText(morse);
+                    practiceResultElement.textContent = text;
+                    userProgress.practiceSessions++;
+                    updateProgressDisplay();
+                    saveProgress();
+                }
+            });
+            
+            // Flashcard navigation
+            prevCardButton.addEventListener('click', () => {
+                if (currentCardSet.length === 0) return;
+                currentCardIndex = (currentCardIndex - 1 + currentCardSet.length) % currentCardSet.length;
+                showCard();
+            });
+            
+            nextCardButton.addEventListener('click', () => {
+                if (currentCardSet.length === 0) return;
+                currentCardIndex = (currentCardIndex + 1) % currentCardSet.length;
+                showCard();
+            });
+            
+            // Flip flashcard
+            flipCardButton.addEventListener('click', () => {
+                flashcardCodeElement.classList.toggle('hidden');
+            });
+            
+            // Flip flashcard on click
+            flashcardElement.addEventListener('click', () => {
+                flashcardCodeElement.classList.toggle('hidden');
+            });
+            
+            // Change card type
+            cardTypeElement.addEventListener('change', () => {
+                generateCardSet();
+                showCard();
+            });
+            
+            // Reset progress
+            resetProgressButton.addEventListener('click', () => {
+                if (confirm('Are you sure you want to reset all progress?')) {
+                    userProgress = {
+                        lettersLearned: 0,
+                        practiceSessions: 0,
+                        flashcardsViewed: 0,
+                        learnedChars: new Set()
+                    };
+                    updateProgressDisplay();
+                    saveProgress();
+                    generateMorseTable();
+                }
+            });
+            
+            // CW Key event listeners
+            cwSpeed.addEventListener('input', () => {
+                cwKeyState.speed = parseInt(cwSpeed.value);
+                speedValue.textContent = `${cwKeyState.speed} WPM`;
+                updateCwTiming();
+            });
+            
+            connectKeyButton.addEventListener('click', () => {
+                if (cwKeyState.connected) {
+                    disconnectSerial();
+                } else {
+                    if (keyMode.value === 'serial') {
+                        connectSerial();
+                    } else {
+                        // For keyboard mode, we simulate connection
+                        cwKeyState.connected = true;
+                        statusIndicator.classList.add('connected');
+                        statusText.textContent = 'Keyboard mode active';
+                        connectKeyButton.textContent = 'Disconnect Key';
+                    }
+                }
+            });
+            
+            clearOutputButton.addEventListener('click', () => {
+                cwKeyState.outputText = '';
+                cwKeyState.currentWord = '';
+                cwKeyState.currentCharacter = '';
+                updateCwOutput();
+            });
+            
+            practiceModeButton.addEventListener('click', () => {
+                cwKeyState.practiceMode = !cwKeyState.practiceMode;
+                if (cwKeyState.practiceMode) {
+                    practiceModeButton.textContent = 'Exit Practice';
+                    cwKeyState.practiceText = generatePracticeText();
+                    cwKeyState.practiceIndex = 0;
+                    cwKeyState.outputText = 'Practice: ' + cwKeyState.practiceText + '\n\nYour input: ';
+                    updateCwOutput();
+                } else {
+                    practiceModeButton.textContent = 'Practice Mode';
+                    cwKeyState.outputText = '';
+                    updateCwOutput();
+                }
+            });
+            
+            // Keyboard input for CW key
+            document.addEventListener('keydown', (e) => {
+                if (e.code === 'Space' && !e.repeat && keyMode.value === 'keyboard') {
+                    e.preventDefault();
+                    keyDown();
+                }
+            });
+            
+            document.addEventListener('keyup', (e) => {
+                if (e.code === 'Space' && keyMode.value === 'keyboard') {
+                    e.preventDefault();
+                    keyUp();
+                }
+            });
+            
+            // Auto-process character and word spaces
+            setInterval(() => {
+                if (cwKeyState.currentCharacter && Date.now() - cwKeyState.keyDownTime > cwKeyState.dotDuration * 3) {
+                    processCharacterSpace();
+                }
+                
+                if (cwKeyState.currentWord && Date.now() - cwKeyState.keyDownTime > cwKeyState.spaceDuration) {
+                    processWordSpace();
+                }
+            }, 50);
+        }
+
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
