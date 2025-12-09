@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Morse Code Learning App</title>
-    <link rel="manifest" href="manifest.json">
     <style>
         /* Base styling */
         * {
@@ -1055,20 +1054,7 @@
                 useButton.textContent = 'Use';
                 useButton.title = 'Load this phrase into the text area';
                 useButton.addEventListener('click', () => {
-                    const practiceTab = document.querySelector('[data-tab="practice"]');
-                    const practiceContent = document.getElementById('practice');
-                    
-                    if (!practiceContent.classList.contains('active')) {
-                        tabElements.forEach(t => t.classList.remove('active'));
-                        tabContentElements.forEach(c => c.classList.remove('active'));
-                        
-                        practiceTab.classList.add('active');
-                        practiceContent.classList.add('active');
-                    }
-                    
                     textInputElement.value = phrase;
-                    
-                    textInputElement.focus();
                 });
                 
                 const playButton = document.createElement('button');
@@ -1139,51 +1125,31 @@
             practiceResultElement.textContent = `Random phrase selected: "${randomPhrase}"`;
         }
 
-        // Export phrases to a file (JSON or TXT)
+        // Export phrases to a JSON file
         function exportPhrases() {
             if (practicePhrases.phrases.length === 0) {
                 alert('No phrases to export');
                 return;
             }
             
-            // Ask user which format they want
-            const format = confirm('Export as JSON (Cancel) or Text file (OK)?\n\nCancel = JSON format (recommended)\nOK = Text file (one phrase per line)');
+            const dataStr = JSON.stringify(practicePhrases.phrases, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
             
-            let dataStr, fileName, mimeType;
-            
-            if (!format) {
-                // Export as JSON
-                const exportData = {
-                    phrases: practicePhrases.phrases,
-                    exportDate: new Date().toISOString(),
-                    totalPhrases: practicePhrases.phrases.length
-                };
-                dataStr = JSON.stringify(exportData, null, 2);
-                fileName = 'morse_code_practice_phrases.json';
-                mimeType = 'application/json';
-            } else {
-                // Export as plain text (one phrase per line)
-                dataStr = practicePhrases.phrases.join('\n');
-                fileName = 'morse_code_practice_phrases.txt';
-                mimeType = 'text/plain';
-            }
-            
-            const dataBlob = new Blob([dataStr], {type: mimeType});
             const url = URL.createObjectURL(dataBlob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = fileName;
+            link.download = 'morse_code_practice_phrases.json';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
         }
 
-        // Import phrases from a JSON file or text file
+        // Import phrases from a JSON file
         function importPhrases() {
             const input = document.createElement('input');
             input.type = 'file';
-            input.accept = '.json,.txt,.text';
+            input.accept = '.json,.txt';
             
             input.onchange = (e) => {
                 const file = e.target.files[0];
@@ -1192,30 +1158,9 @@
                 const reader = new FileReader();
                 reader.onload = (event) => {
                     try {
-                        let importedPhrases = [];
-                        const fileContent = event.target.result;
-                        
-                        // Try to parse as JSON first
-                        try {
-                            const jsonData = JSON.parse(fileContent);
-                            if (Array.isArray(jsonData)) {
-                                importedPhrases = jsonData;
-                            } else if (typeof jsonData === 'object' && jsonData.phrases) {
-                                // Support for our export format
-                                importedPhrases = jsonData.phrases;
-                            } else {
-                                throw new Error('JSON is not in expected format');
-                            }
-                        } catch (jsonError) {
-                            // If not JSON, treat as plain text
-                            // Split by newlines and filter out empty lines
-                            importedPhrases = fileContent.split('\n')
-                                .map(line => line.trim())
-                                .filter(line => line.length > 0);
-                        }
-                        
+                        const importedPhrases = JSON.parse(event.target.result);
                         if (!Array.isArray(importedPhrases)) {
-                            throw new Error('Invalid format: Expected an array of phrases or text file with one phrase per line');
+                            throw new Error('Invalid format: Expected an array of phrases');
                         }
                         
                         // Add only new phrases
@@ -1232,7 +1177,7 @@
                         updatePhrasesDisplay();
                         alert(`Successfully imported ${addedCount} new phrases.`);
                     } catch (error) {
-                        alert(`Error importing phrases: ${error.message}\n\nSupported formats:\n1. JSON array: ["phrase1", "phrase2"]\n2. JSON object with "phrases" key\n3. Text file with one phrase per line`);
+                        alert(`Error importing phrases: ${error.message}`);
                     }
                 };
                 reader.readAsText(file);
@@ -2303,21 +2248,6 @@
 
         // Initialize the app when DOM is loaded
         document.addEventListener('DOMContentLoaded', init);
-    </script>
-
-    <script>
-        // Register Service Worker
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('sw.js')
-                    .then(function(registration) {
-                        console.log('Service Worker registered with scope:', registration.scope);
-                    })
-                    .catch(function(error) {
-                        console.log('Service Worker registration failed:', error);
-                    });
-            });
-        }
     </script>
 </body>
 </html>
