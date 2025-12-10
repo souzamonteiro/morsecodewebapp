@@ -18,7 +18,7 @@ Um aplicativo web completo para aprendizado de código Morse, com suporte a áud
 ### ⌨️ Múltiplos Métodos de Entrada
 - **Teclado**: Use a barra de espaço como chave virtual
 - **Toque/Clique**: Interface otimizada para dispositivos móveis
-- **Dispositivos CW USB**: Suporte a chaves Morse via porta serial
+- **Dispositivos CW USB**: Suporte a chaves Morse via porta serial e emulação de mouse
 
 ### 🔊 Sistema de Áudio Avançado
 - Geração de tons em tempo real usando Web Audio API

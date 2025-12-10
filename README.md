@@ -18,7 +18,7 @@ A comprehensive web application for learning Morse code, with support for audio,
 ### ⌨️ Multiple Input Methods
 - **Keyboard**: Use spacebar as virtual key
 - **Touch/Click**: Mobile-optimized interface
-- **CW USB Devices**: Support for Morse keys via serial port
+- **CW USB Devices**: Support for Morse keys via serial port and mouse emulation
 
 ### 🔊 Advanced Audio System
 - Real-time tone generation using Web Audio API

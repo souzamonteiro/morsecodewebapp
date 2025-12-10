@@ -1,0 +1,68 @@
+{
+  "name": "morsecodewebapp",
+  "version": "1.0.0",
+  "description": "Interactive Morse Code Learning Progressive Web App",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js --open",
+    "dev:reload": "node server.js --open --live-reload",
+    "serve": "node server.js",
+    "serve:https": "node server.js --https",
+    "test": "echo \"No tests specified\" && exit 0",
+    "icons": "node generate-icons.js",
+    "build": "echo \"Build process not needed for static app\"",
+    "build:icons": "bash generate-icons.sh",
+    "pwa": "node server.js --open",
+    "deploy": "echo \"Add your deployment script here\"",
+    "clean": "rm -rf node_modules package-lock.json",
+    "cert": "openssl req -x509 -newkey rsa:2048 -keyout localhost-key.pem -out localhost.pem -days 365 -nodes -subj \"/C=BR/ST=SaoPaulo/L=SaoPaulo/O=MorseCode/CN=localhost\"",
+    "postinstall": "echo \"✅ Dependencies installed. Run 'npm start' to launch the server.\"",
+    "lint": "echo \"No linter configured\"",
+    "format": "echo \"No formatter configured\""
+  },
+  "keywords": [
+    "morse-code",
+    "pwa",
+    "learning",
+    "education",
+    "web-audio",
+    "ham-radio",
+    "cw",
+    "service-worker"
+  ],
+  "author": "Morse Code Learning App",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/souzamonteiro/morsecodewebapp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/souzamonteiro/morsecodewebapp/issues"
+  },
+  "homepage": "https://github.com/souzamonteiro/morsecodewebappp#readme",
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
+  },
+  "dependencies": {
+    "chokidar": "^3.5.3"
+  },
+  "devDependencies": {
+    "imagemagick": "^0.1.3"
+  },
+  "optionalDependencies": {
+    "sharp": "^0.32.0"
+  },
+  "pwa": {
+    "name": "Morse Code Learning App",
+    "short_name": "MorseCode",
+    "theme_color": "#1a2a6c",
+    "background_color": "#1a2a6c"
+  },
+  "config": {
+    "port": 3000,
+    "folder": "www",
+    "openBrowser": true
+  }
+}
