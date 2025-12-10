@@ -6,10 +6,12 @@ const url = require('url');
 
 // Configurações
 const config = {
-    port: 3000,
-    sslPort: 3443,
+    //port: 3000,
+    //sslPort: 3443,
+    port: 4000,
+    sslPort: 4443,
     folder: 'www',
-    enableSSL: true,
+    enableSSL: false,
     sslKey: 'localhost-key.pem',
     sslCert: 'localhost.pem',
     cors: true,
