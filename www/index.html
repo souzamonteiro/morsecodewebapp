@@ -2310,12 +2310,38 @@
         // Initialize the app when DOM is loaded
         document.addEventListener('DOMContentLoaded', init);
     </script>
+    
     <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('./sw.js')
-                .then(() => console.log('Service Worker successfully registered.'))
-                .catch(err => console.error('Erro SW:', err));
+            .then(() => console.log('Service Worker successfully registered.'))
+            .catch(err => console.error('Erro SW:', err));
         }
+    </script>
+
+    <div id="offlineNotification" style="display: none; position: fixed; top: 0; left: 0; right: 0; background: #b21f1f; color: white; text-align: center; padding: 10px; z-index: 1000;">
+    ⚠️ You are offline. Some features may be limited.
+    </div>
+
+    <script>
+        // Checks connection status
+        function updateOnlineStatus() {
+            const offlineNotification = document.getElementById('offlineNotification');
+            if (!navigator.onLine) {
+            offlineNotification.style.display = 'block';
+            console.log('Application in offline mode');
+            } else {
+            offlineNotification.style.display = 'none';
+            console.log('Online application');
+            }
+        }
+
+        // Event listeners for connection changes
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+        
+        // Check initial status
+        updateOnlineStatus();
     </script>
 </body>
 </html>
