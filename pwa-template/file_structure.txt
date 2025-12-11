@@ -1,0 +1,10 @@
+pwa-template/
+├── index.html          # Main HTML file
+├── manifest.json       # Web App Manifest
+├── service-worker.js   # Service Worker
+├── app.js              # Main JavaScript
+├── styles.css          # Styles
+├── assets/             # Icons and images
+│   ├── icons/          # App icons
+│   └── splash/         # Splash screens (iOS)
+└── README.md

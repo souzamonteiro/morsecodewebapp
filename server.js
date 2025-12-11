@@ -4,22 +4,24 @@ const fs = require('fs');
 const path = require('path');
 const url = require('url');
 
-// Configurações
+// Configuration
 const config = {
     //port: 3000,
     //sslPort: 3443,
     port: 4000,
     sslPort: 4443,
-    folder: 'www',
-    enableSSL: false,
+    //folder: 'www',
+    folder: '.',
+    //enableSSL: false,
+    enableSSL: true,
     sslKey: 'localhost-key.pem',
     sslCert: 'localhost.pem',
     cors: true,
     spaMode: true, // Single Page Application mode (redirect all to index.html)
     gzip: true,
     cache: {
-        static: 3600, // 1 hora para arquivos estáticos
-        html: 300, // 5 minutos para HTML
+        static: 3600, // 1 hour for static files
+        html: 300, // 5 minutes for HTML
     }
 };
 
@@ -52,7 +54,7 @@ const mimeTypes = {
     '.map': 'application/json'
 };
 
-// Log com timestamp
+// Log with timestamp
 function log(message, type = 'INFO') {
     const timestamp = new Date().toISOString();
     const colors = {
@@ -66,16 +68,16 @@ function log(message, type = 'INFO') {
     console.log(`${colors[type] || reset}[${timestamp}] ${type}:${reset} ${message}`);
 }
 
-// Verifica se pasta www existe
+// Check if www folder exists
 if (!fs.existsSync(config.folder)) {
-    log(`Criando pasta '${config.folder}'...`, 'INFO');
+    log(`Creating folder '${config.folder}'...`, 'INFO');
     fs.mkdirSync(config.folder, { recursive: true });
     
-    // Cria um index.html padrão se a pasta estiver vazia
+    // Create a default index.html if the folder is empty
     const defaultHtml = `<!DOCTYPE html>
 <html>
 <head>
-    <title>Servidor Node.js</title>
+    <title>Node.js Server</title>
     <style>
         body { 
             font-family: Arial, sans-serif; 
@@ -105,26 +107,26 @@ if (!fs.existsSync(config.folder)) {
 </head>
 <body>
     <div class="container">
-        <h1>🚀 Servidor Node.js Funcionando!</h1>
-        <p>Servidor web rodando na porta <code>${config.port}</code></p>
-        <p>Pasta servida: <code>${config.folder}</code></p>
-        <p>Coloque seus arquivos HTML, CSS, JS na pasta <code>${config.folder}</code></p>
-        <h3>Comandos úteis:</h3>
+        <h1>🚀 Node.js Server Running!</h1>
+        <p>Web server running on port <code>${config.port}</code></p>
+        <p>Serving folder: <code>${config.folder}</code></p>
+        <p>Place your HTML, CSS, JS files in the <code>${config.folder}</code> folder</p>
+        <h3>Useful commands:</h3>
         <ul>
-            <li><code>node server.js</code> - Inicia o servidor</li>
-            <li><code>curl http://localhost:${config.port}</code> - Testa o servidor</li>
-            <li>Acesse <a href="http://localhost:${config.port}">http://localhost:${config.port}</a> no navegador</li>
+            <li><code>node server.js</code> - Start the server</li>
+            <li><code>curl http://localhost:${config.port}</code> - Test the server</li>
+            <li>Access <a href="http://localhost:${config.port}">http://localhost:${config.port}</a> in your browser</li>
         </ul>
-        <p><em>Servidor iniciado em ${new Date().toLocaleString()}</em></p>
+        <p><em>Server started at ${new Date().toLocaleString()}</em></p>
     </div>
 </body>
 </html>`;
     
     fs.writeFileSync(path.join(config.folder, 'index.html'), defaultHtml);
-    log(`Arquivo index.html padrão criado em '${config.folder}'`, 'SUCCESS');
+    log(`Default index.html file created in '${config.folder}'`, 'SUCCESS');
 }
 
-// Função para servir arquivos
+// Function to serve files
 function serveFile(req, res, filePath) {
     const ext = path.extname(filePath).toLowerCase();
     const contentType = mimeTypes[ext] || 'application/octet-stream';
@@ -132,9 +134,9 @@ function serveFile(req, res, filePath) {
     fs.readFile(filePath, (err, content) => {
         if (err) {
             if (err.code === 'ENOENT') {
-                // Arquivo não encontrado
+                // File not found
                 if (config.spaMode && ext === '') {
-                    // No SPA mode, serve index.html para rotas não encontradas
+                    // In SPA mode, serve index.html for non-existent routes
                     const indexPath = path.join(config.folder, 'index.html');
                     if (fs.existsSync(indexPath)) {
                         serveFile(req, res, indexPath);
@@ -146,7 +148,7 @@ function serveFile(req, res, filePath) {
                 serve500(req, res, err);
             }
         } else {
-            // Configura headers
+            // Set headers
             const headers = {
                 'Content-Type': contentType,
                 'X-Powered-By': 'Node.js Simple Server'
@@ -170,7 +172,7 @@ function serveFile(req, res, filePath) {
                 headers['Access-Control-Allow-Headers'] = 'Content-Type';
             }
             
-            // Gzip compression (simples)
+            // Gzip compression (simple)
             if (config.gzip && (ext === '.html' || ext === '.htm' || ext === '.js' || ext === '.css' || ext === '.json')) {
                 const acceptEncoding = req.headers['accept-encoding'] || '';
                 if (acceptEncoding.includes('gzip')) {
@@ -193,19 +195,19 @@ function serveFile(req, res, filePath) {
             res.writeHead(200, headers);
             res.end(content);
             
-            // Log da requisição
+            // Request log
             const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
             log(`${ip} - "${req.method} ${req.url}" 200 ${content.length} bytes`, 'SUCCESS');
         }
     });
 }
 
-// Página 404
+// 404 Page
 function serve404(req, res) {
     const html = `<!DOCTYPE html>
 <html>
 <head>
-    <title>404 - Página Não Encontrada</title>
+    <title>404 - Page Not Found</title>
     <style>
         body { 
             font-family: Arial, sans-serif; 
@@ -234,9 +236,9 @@ function serve404(req, res) {
 <body>
     <div class="container">
         <h1>404</h1>
-        <h2>Página Não Encontrada</h2>
-        <p>A página que você está procurando não existe.</p>
-        <p><a href="/">Voltar para a página inicial</a></p>
+        <h2>Page Not Found</h2>
+        <p>The page you are looking for does not exist.</p>
+        <p><a href="/">Return to home page</a></p>
     </div>
 </body>
 </html>`;
@@ -251,12 +253,12 @@ function serve404(req, res) {
     log(`${ip} - "${req.method} ${req.url}" 404`, 'WARN');
 }
 
-// Página 500
+// 500 Page
 function serve500(req, res, error) {
     const html = `<!DOCTYPE html>
 <html>
 <head>
-    <title>500 - Erro Interno do Servidor</title>
+    <title>500 - Internal Server Error</title>
     <style>
         body { 
             font-family: Arial, sans-serif; 
@@ -294,10 +296,10 @@ function serve500(req, res, error) {
 <body>
     <div class="container">
         <h1>500</h1>
-        <h2>Erro Interno do Servidor</h2>
-        <p>Algo deu errado no servidor.</p>
-        <div class="error">${error ? error.toString().replace(/</g, '&lt;').replace(/>/g, '&gt;') : 'Erro desconhecido'}</div>
-        <p><a href="/">Voltar para a página inicial</a></p>
+        <h2>Internal Server Error</h2>
+        <p>Something went wrong on the server.</p>
+        <div class="error">${error ? error.toString().replace(/</g, '&lt;').replace(/>/g, '&gt;') : 'Unknown error'}</div>
+        <p><a href="/">Return to home page</a></p>
     </div>
 </body>
 </html>`;
@@ -312,9 +314,9 @@ function serve500(req, res, error) {
     log(`${ip} - "${req.method} ${req.url}" 500 - ${error ? error.message : 'Unknown error'}`, 'ERROR');
 }
 
-// Manipulador de requisições
+// Request handler
 function requestHandler(req, res) {
-    // Log da requisição
+    // Request log
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
     log(`${ip} - "${req.method} ${req.url}"`, 'INFO');
     
@@ -322,7 +324,7 @@ function requestHandler(req, res) {
     const parsedUrl = url.parse(req.url);
     let pathname = parsedUrl.pathname;
     
-    // Remove trailing slash, exceto para a raiz
+    // Remove trailing slash, except for root
     if (pathname !== '/' && pathname.endsWith('/')) {
         pathname = pathname.slice(0, -1);
     }
@@ -331,19 +333,19 @@ function requestHandler(req, res) {
     try {
         pathname = decodeURIComponent(pathname);
     } catch (e) {
-        log(`Erro ao decodificar URL: ${pathname}`, 'WARN');
+        log(`Error decoding URL: ${pathname}`, 'WARN');
         serve404(req, res);
         return;
     }
     
-    // Prevenir directory traversal
+    // Prevent directory traversal
     if (pathname.includes('../') || pathname.includes('..\\')) {
-        log(`Tentativa de directory traversal: ${pathname}`, 'WARN');
+        log(`Directory traversal attempt: ${pathname}`, 'WARN');
         serve404(req, res);
         return;
     }
     
-    // Mapear caminho para arquivo
+    // Map path to file
     let filePath;
     if (pathname === '/') {
         filePath = path.join(config.folder, 'index.html');
@@ -351,16 +353,16 @@ function requestHandler(req, res) {
         filePath = path.join(config.folder, pathname);
     }
     
-    // Verificar se é diretório
+    // Check if it's a directory
     fs.stat(filePath, (err, stats) => {
         if (!err && stats.isDirectory()) {
-            // Se for diretório, tenta servir index.html dentro dele
+            // If it's a directory, try to serve index.html inside it
             const indexPath = path.join(filePath, 'index.html');
             fs.access(indexPath, fs.constants.F_OK, (err) => {
                 if (!err) {
                     serveFile(req, res, indexPath);
                 } else {
-                    // Listar diretório (opcional - desabilitado por padrão)
+                    // List directory (optional - disabled by default)
                     if (req.method === 'GET' && config.listDirectories) {
                         listDirectory(req, res, filePath, pathname);
                     } else {
@@ -374,10 +376,10 @@ function requestHandler(req, res) {
     });
 }
 
-// Servidor HTTP
+// HTTP server
 const httpServer = http.createServer(requestHandler);
 
-// Servidor HTTPS (opcional)
+// HTTPS server (optional)
 let httpsServer;
 if (config.enableSSL) {
     try {
@@ -387,19 +389,19 @@ if (config.enableSSL) {
         };
         httpsServer = https.createServer(sslOptions, requestHandler);
     } catch (err) {
-        log(`Erro ao carregar certificados SSL: ${err.message}`, 'ERROR');
-        log('Servindo apenas HTTP', 'WARN');
+        log(`Error loading SSL certificates: ${err.message}`, 'ERROR');
+        log('Serving HTTP only', 'WARN');
         config.enableSSL = false;
     }
 }
 
-// Iniciar servidores
+// Start servers
 httpServer.listen(config.port, () => {
-    log(`✅ Servidor HTTP rodando em: http://localhost:${config.port}`, 'SUCCESS');
-    log(`📁 Servindo arquivos da pasta: ${config.folder}`, 'INFO');
-    log(`🌐 Acesse: http://localhost:${config.port}`, 'INFO');
+    log(`✅ HTTP server running at: http://localhost:${config.port}`, 'SUCCESS');
+    log(`📁 Serving files from folder: ${config.folder}`, 'INFO');
+    log(`🌐 Access: http://localhost:${config.port}`, 'INFO');
     
-    // Abrir navegador automaticamente (opcional)
+    // Open browser automatically (optional)
     if (process.argv.includes('--open')) {
         const { exec } = require('child_process');
         const url = `http://localhost:${config.port}`;
@@ -411,26 +413,26 @@ httpServer.listen(config.port, () => {
         else command = `xdg-open ${url}`;
         
         exec(command, (err) => {
-            if (err) log(`Não foi possível abrir o navegador: ${err.message}`, 'WARN');
+            if (err) log(`Could not open browser: ${err.message}`, 'WARN');
         });
     }
 });
 
 if (config.enableSSL && httpsServer) {
     httpsServer.listen(config.sslPort, () => {
-        log(`🔐 Servidor HTTPS rodando em: https://localhost:${config.sslPort}`, 'SUCCESS');
-        log(`🌐 Acesse: https://localhost:${config.sslPort}`, 'INFO');
+        log(`🔐 HTTPS server running at: https://localhost:${config.sslPort}`, 'SUCCESS');
+        log(`🌐 Access: https://localhost:${config.sslPort}`, 'INFO');
     });
 }
 
-// Tratamento de sinais para shutdown gracioso
+// Signal handling for graceful shutdown
 process.on('SIGINT', () => {
-    log('Desligando servidor...', 'INFO');
+    log('Shutting down server...', 'INFO');
     httpServer.close(() => {
-        log('Servidor HTTP desligado', 'INFO');
+        log('HTTP server shut down', 'INFO');
         if (httpsServer) {
             httpsServer.close(() => {
-                log('Servidor HTTPS desligado', 'INFO');
+                log('HTTPS server shut down', 'INFO');
                 process.exit(0);
             });
         } else {
@@ -439,30 +441,30 @@ process.on('SIGINT', () => {
     });
 });
 
-// Tratamento de erros não capturados
+// Uncaught exception handling
 process.on('uncaughtException', (err) => {
-    log(`Erro não capturado: ${err.message}`, 'ERROR');
+    log(`Uncaught error: ${err.message}`, 'ERROR');
     log(err.stack, 'ERROR');
 });
 
-// Adicionar funcionalidade de live reload (opcional)
+// Add live reload functionality (optional)
 if (process.argv.includes('--live-reload')) {
-    log('Live reload ativado', 'INFO');
+    log('Live reload activated', 'INFO');
     const chokidar = require('chokidar');
     
-    // Observar mudanças na pasta www
+    // Watch for changes in the www folder
     const watcher = chokidar.watch(config.folder, {
         ignored: /(^|[\/\\])\../, // ignore dotfiles
         persistent: true
     });
     
     watcher.on('change', (filePath) => {
-        log(`Arquivo alterado: ${filePath}`, 'DEBUG');
-        // Aqui você poderia implementar WebSocket para live reload
+        log(`File changed: ${filePath}`, 'DEBUG');
+        // Here you could implement WebSocket for live reload
     });
 }
 
-// Exportar para testes
+// Export for testing
 module.exports = {
     httpServer,
     httpsServer,

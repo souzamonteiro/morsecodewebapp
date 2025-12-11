@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Required for PWA installation -->
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#0d6efd" />
+
+    <!-- Icons for installation -->
+    <link rel="icon" href="icons/icon-192.png" type="image/png" />
+
+    <title>Minimal PWA</title>
+
+    <script>
+        // Register Service Worker
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.register("sw.js")
+                .then(() => console.log("Service Worker registered"))
+                .catch(err => console.error("SW registration failed:", err));
+        }
+    </script>
+</head>
+
+<body>
+    <h1>Minimal PWA</h1>
+    <p>This PWA works offline and can be installed.</p>
+    <p>Try disabling your internet and reloading.</p>
+</body>
+</html>

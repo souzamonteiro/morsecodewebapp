@@ -1,50 +1,50 @@
 #!/bin/bash
 
-# Script para gerar todos os ícones do PWA Morse Code
+# Script to generate all the icons for the Morse Code PWA
 
-echo "Gerando ícones para o Morse Code PWA..."
+echo "Generating icons for the Morse Code PWA..."
 
 rm -rf www/icons
 mkdir -p www/icons
 
-# Verifica se o arquivo SVG existe
+# Check if the SVG file exists
 if [ ! -f "icons/icon.svg" ]; then
-    echo "Erro: arquivo icons/icon.svg não encontrado!"
+    echo "Error: file icons/icon.svg not found!"
     exit 1
 fi
 
-# Instala dependências se necessário
-# echo "Verificando dependências..."
+# Install dependencies if necessary
+# echo "Checking dependencies..."
 # if ! command -v convert &> /dev/null; then
-#     echo "Instalando ImageMagick..."
+#     echo "Installing ImageMagick..."
 #     sudo apt update && sudo apt install -y imagemagick
 # fi
 
 # if ! command -v rsvg-convert &> /dev/null; then
-#     echo "Instalando librsvg..."
+#     echo "Installing librsvg..."
 #     sudo apt update && sudo apt install -y librsvg2-bin
 # fi
 
-# Tamanhos necessários para PWA
+# Required sizes for PWA
 sizes=(16 32 72 96 128 144 152 180 192 384 512)
 
-echo "Gerando ícones PNG..."
+echo "Generating PNG icons..."
 for size in "${sizes[@]}"; do
-    echo "  Criando icon-${size}x${size}.png"
+    echo "  Creating icon-${size}x${size}.png"
     rsvg-convert -w $size -h $size icons/icon.svg -o icons/icon-${size}x${size}.png
 done
 
-# Ícones específicos
-echo "Gerando ícones especiais..."
+# Specific icons
+echo "Generating special icons..."
 rsvg-convert -w 32 -h 32 icons/icon.svg -o icons/favicon-32.png
 rsvg-convert -w 16 -h 16 icons/icon.svg -o icons/favicon-16.png
 rsvg-convert -w 180 -h 180 icons/icon.svg -o icons/apple-touch-icon.png
 
-# Favicon ICO (com múltiplos tamanhos)
-echo "Criando favicon.ico..."
+# Favicon ICO (with multiple sizes)
+echo "Creating favicon.ico..."
 convert icons/favicon-16.png icons/favicon-32.png icons/favicon.ico
 
-echo "Gerando manifest.json atualizado..."
+echo "Generating updated manifest.json..."
 cat > www/manifest.json << EOF
 {
   "name": "Morse Code Learning App",
@@ -99,10 +99,11 @@ cat > www/manifest.json << EOF
 }
 EOF
 
-echo "✅ Ícones gerados com sucesso na pasta 'icons/'!"
-echo "📁 Conteúdo da pasta icons:"
+echo "✅ Icons generated successfully in the 'icons/' folder!"
+echo "📁 Contents of the icons folder:"
 ls -la icons/
 
+# Copy generated icons to www/icons folder
 cp icons/* www/icons/
-echo "📁 Ícones copiados para www/icons/"
-echo "Script concluído."
+echo "📁 Icons copied to www/icons/"
+echo "Script completed."

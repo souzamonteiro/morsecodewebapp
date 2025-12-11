@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4a90e2">
+    <meta name="description" content="A Progressive Web Application Template">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="PWA Template">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <!-- Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Icons -->
+    <link rel="icon" type="image/png" href="assets/icons/icon-72x72.png">
+    <link rel="apple-touch-icon" href="assets/icons/icon-152x152.png">
+    
+    <!-- Splash Screens (iOS) -->
+    <link rel="apple-touch-startup-image" href="assets/splash/splash-640x1136.png" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="assets/splash/splash-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="assets/splash/splash-1242x2208.png" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="assets/splash/splash-1125x2436.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+    
+    <title>PWA Template</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="app-header">
+            <h1 class="app-title">PWA Template</h1>
+            <div class="app-controls">
+                <button id="installBtn" class="btn btn-primary" style="display: none;">
+                    Install App
+                </button>
+                <button id="notifyBtn" class="btn btn-secondary">
+                    Test Notification
+                </button>
+            </div>
+        </header>
+        
+        <main class="app-content">
+            <section class="hero">
+                <h2>Welcome to Your PWA</h2>
+                <p>This is a fully functional Progressive Web Application template.</p>
+                <div class="status-card">
+                    <h3>PWA Status</h3>
+                    <div class="status-list">
+                        <div class="status-item">
+                            <span class="status-label">Service Worker:</span>
+                            <span id="swStatus" class="status-value">Checking...</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Installable:</span>
+                            <span id="installStatus" class="status-value">Checking...</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Network:</span>
+                            <span id="networkStatus" class="status-value online">Online</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Storage:</span>
+                            <span id="storageStatus" class="status-value">Calculating...</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="features">
+                <div class="feature-card">
+                    <h3>📱 Installable</h3>
+                    <p>Works on all devices and can be installed like a native app.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>⚡ Fast</h3>
+                    <p>Cached assets for instant loading and smooth performance.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🔒 Secure</h3>
+                    <p>HTTPS required for service workers and secure connections.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>📶 Offline</h3>
+                    <p>Works without an internet connection using cached resources.</p>
+                </div>
+            </section>
+            
+            <section class="demo-section">
+                <h3>Local Storage Demo</h3>
+                <div class="storage-demo">
+                    <input type="text" id="storageInput" placeholder="Enter some text to save locally">
+                    <button id="saveBtn" class="btn btn-primary">Save</button>
+                    <button id="clearBtn" class="btn btn-secondary">Clear</button>
+                </div>
+                <div id="savedData" class="saved-data"></div>
+            </section>
+        </main>
+        
+        <footer class="app-footer">
+            <p>PWA Template © 2024 | Works offline | <span id="cacheStatus">Cache: Loading...</span></p>
+        </footer>
+        
+        <!-- Notification container -->
+        <div id="notification" class="notification"></div>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>
