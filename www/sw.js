@@ -1,4 +1,4 @@
-const CACHE_NAME = 'morsecodewebapp-v3';
+const CACHE_NAME = 'morsecodewebapp-v4';
 const urlsToCache = [
   './',
   './index.html',
@@ -41,16 +41,15 @@ self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
+        cacheNames
+          .filter(cacheName => cacheName !== CACHE_NAME) // Keep only the current cache
+          .map(cacheName => {
             console.log('Removing old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
+            return caches.delete(cacheName); // Remove old caches
+          })
       );
     })
   );
-  // Take control of all pages immediately.
   return self.clients.claim();
 });
 
