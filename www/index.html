@@ -693,6 +693,33 @@
                 <button id="playCardSound">Play Sound</button>
             </div>
             
+            <!-- ADD THIS NEW SECTION FOR CW PRACTICE -->
+            <div class="cw-key-section" style="margin-top: 30px;">
+                <h3>Practice This Character</h3>
+                <p>Use your CW key (keyboard, touch, or mouse) to practice sending the displayed character</p>
+                
+                <div class="key-test-area" id="flashcardKeyTestArea">
+                    <p id="flashcardKeyInstruction">Press Spacebar, click, or touch here to practice</p>
+                    <p class="touch-instructions">(Touch and hold for dash, quick tap for dot)</p>
+                    <p class="hidden" id="flashcardKeyOutput"></p>
+                </div>
+                
+                <div class="cw-controls" style="margin-top: 15px;">
+                    <button id="flashcardClearKey">Clear Input</button>
+                    <button id="flashcardCheckCode">Check My Code</button>
+                    <button id="flashcardShowCode">Show Target Code</button>
+                </div>
+                
+                <div class="cw-output" id="flashcardCwOutput" style="margin-top: 15px; min-height: 60px;">
+                    Your CW input will appear here...
+                </div>
+                
+                <div class="input-group" style="margin-top: 15px;">
+                    <label>Your Input: <span id="flashcardCurrentCharDisplay" style="color: #fdbb2d; font-weight: bold;">None</span></label>
+                    <label>Target Code: <span id="flashcardTargetCodeDisplay" style="color: #4CAF50; font-weight: bold;">.-</span></label>
+                </div>
+            </div>
+            
             <div class="input-group" style="margin-top: 20px;">
                 <label for="cardType">Card Type:</label>
                 <select id="cardType">
@@ -824,6 +851,29 @@
     </div>
 
     <script>
+        // Flashcard CW Practice elements
+        const flashcardKeyTestArea = document.getElementById('flashcardKeyTestArea');
+        const flashcardKeyInstruction = document.getElementById('flashcardKeyInstruction');
+        const flashcardKeyOutput = document.getElementById('flashcardKeyOutput');
+        const flashcardClearKeyButton = document.getElementById('flashcardClearKey');
+        const flashcardCheckCodeButton = document.getElementById('flashcardCheckCode');
+        const flashcardShowCodeButton = document.getElementById('flashcardShowCode');
+        const flashcardCwOutput = document.getElementById('flashcardCwOutput');
+        const flashcardCurrentCharDisplay = document.getElementById('flashcardCurrentCharDisplay');
+        const flashcardTargetCodeDisplay = document.getElementById('flashcardTargetCodeDisplay');
+
+        // Flashcard CW Practice state
+        let flashcardCwState = {
+            currentCharacter: '',
+            keyDownTime: 0,
+            soundEnabled: true,
+            lastKeyUpTime: 0,
+            characterTimeout: null,
+            isTouchActive: false,
+            touchTimer: null,
+            mouseButtonDown: null
+        };
+
         // Morse code dictionary
         const morseCode = {
             'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.', 
@@ -893,7 +943,7 @@
         let currentCardIndex = 0;
         let currentCardSet = [];
 
-        // CW Key state - COMPLETELY REVISED TIMING SYSTEM
+        // CW Key state
         let cwKeyState = {
             connected: false,
             port: null,
@@ -916,7 +966,8 @@
             touchTimer: null,
             characterTimeout: null, // timeout for character completion
             lastKeyUpTime: 0, // track when key was last released
-            mouseButtonDown: null // track which mouse button is pressed
+            mouseButtonDown: null, // track which mouse button is pressed
+            wordSpaceInterval: null // interval for checking word spaces
         };
 
         // Audio state
@@ -1023,7 +1074,10 @@
             
             // Initialize Audio
             initAudio();
-            
+
+            // Initialize Flashcard CW Practice
+            initFlashcardCwPractice();
+
             // Update progress display
             updateProgressDisplay();
             
@@ -1056,9 +1110,32 @@
             
             // Update instruction text based on mode
             updateKeyInstruction();
+            
+            // Initialize character and word displays
+            currentCharDisplay.textContent = 'None';
+            currentWordDisplay.textContent = 'None';
+            
+            // Initialize the word space checking interval
+            startWordSpaceChecker();
         }
 
-        // Update CW timing based on speed (WPM) - FIXED CALCULATION
+        // Start checking for word spaces
+        function startWordSpaceChecker() {
+            // Clear any existing interval
+            if (cwKeyState.wordSpaceInterval) {
+                clearInterval(cwKeyState.wordSpaceInterval);
+            }
+            
+            // Check regularly for word space timeout
+            cwKeyState.wordSpaceInterval = setInterval(() => {
+                if (cwKeyState.currentWord && cwKeyState.lastKeyUpTime && 
+                    (Date.now() - cwKeyState.lastKeyUpTime) > cwKeyState.wordSpaceDuration) {
+                    processWordSpace();
+                }
+            }, 50); // Check every 50ms
+        }
+
+        // Update CW timing based on speed (WPM)
         function updateCwTiming() {
             // Standard PARIS calculation: 50 time units per word
             // Dot = 1 unit, Dash = 3 units, intra-character space = 1 unit
@@ -1072,6 +1149,9 @@
             
             // Update timing info display
             timingInfo.textContent = `Dot: ${Math.round(cwKeyState.dotDuration)}ms, Dash: ${Math.round(cwKeyState.dashDuration)}ms, Char space: ${Math.round(cwKeyState.charSpaceDuration)}ms`;
+            
+            // Restart word space checker with new timing
+            startWordSpaceChecker();
         }
 
         // Update key instruction text based on selected mode
@@ -1759,7 +1839,7 @@
             }
         }
 
-        // Handle key up (releasing the CW key) - FIXED TIMING LOGIC
+        // Handle key up (releasing the CW key)
         function keyUp() {
             const duration = Date.now() - cwKeyState.keyDownTime;
             keyTestArea.classList.remove('active');
@@ -1784,14 +1864,17 @@
             // Update the current character display
             currentCharDisplay.textContent = cwKeyState.currentCharacter || 'None';
             
+            // Clear any existing character timeout
+            if (cwKeyState.characterTimeout) {
+                clearTimeout(cwKeyState.characterTimeout);
+            }
+            
             // Set a timeout to complete the character
-            // This is the KEY FIX - we wait for the character space duration
-            // before considering the character complete
             cwKeyState.characterTimeout = setTimeout(() => {
                 processCharacterSpace();
             }, cwKeyState.charSpaceDuration);
             
-            // Update the last key up time
+            // Update the last key up time for word space calculation
             cwKeyState.lastKeyUpTime = Date.now();
             
             // Update output display
@@ -1874,6 +1957,12 @@
 
         // Process character space (when a character is complete)
         function processCharacterSpace() {
+            // Clear the character timeout
+            if (cwKeyState.characterTimeout) {
+                clearTimeout(cwKeyState.characterTimeout);
+                cwKeyState.characterTimeout = null;
+            }
+            
             if (cwKeyState.currentCharacter) {
                 const character = reverseMorse[cwKeyState.currentCharacter];
                 if (character) {
@@ -1892,12 +1981,20 @@
                 updateCwOutput();
                 updateProgressDisplay();
                 saveProgress();
+                
+                // Update last key up time for word space calculation
+                cwKeyState.lastKeyUpTime = Date.now();
             }
         }
 
         // Process word space (when a word is complete)
         function processWordSpace() {
-            processCharacterSpace();
+            // Process any pending character first
+            if (cwKeyState.currentCharacter) {
+                processCharacterSpace();
+            }
+            
+            // If we have a current word, add it to output
             if (cwKeyState.currentWord) {
                 cwKeyState.outputText += cwKeyState.currentWord + ' ';
                 cwKeyState.currentWord = '';
@@ -1910,20 +2007,235 @@
         function updateCwOutput() {
             let displayText = cwKeyState.outputText;
             
+            // Add current word if exists
             if (cwKeyState.currentWord) {
-                displayText += cwKeyState.currentWord + ' ';
+                displayText += cwKeyState.currentWord;
             }
             
+            // Add current character being formed
             if (cwKeyState.currentCharacter) {
+                // Add space before character indicator if there's already text
+                if (displayText.length > 0 && !displayText.endsWith(' ')) {
+                    displayText += ' ';
+                }
                 displayText += `[${cwKeyState.currentCharacter}]`;
             }
             
             cwOutput.textContent = displayText || 'CW output will appear here...';
+            cwOutput.scrollTop = cwOutput.scrollHeight; // Auto-scroll to bottom
             
             // If in practice mode, check if the user is matching the practice text
             if (cwKeyState.practiceMode) {
                 checkPracticeProgress();
             }
+        }
+
+        // Initialize Flashcard CW Practice
+        function initFlashcardCwPractice() {
+            updateFlashcardKeyInstruction();
+            resetFlashcardCwInput();
+        }
+
+        // Update flashcard key instruction
+        function updateFlashcardKeyInstruction() {
+            const cwMode = keyMode.value; // Use the same mode as main CW Key tab
+            if (cwMode === 'touch') {
+                flashcardKeyInstruction.textContent = 'Touch and hold here to practice';
+            } else if (cwMode === 'keyboard') {
+                flashcardKeyInstruction.textContent = 'Press Spacebar or click here to practice';
+            } else if (cwMode === 'mouse') {
+                flashcardKeyInstruction.textContent = 'Left click for dot, Right click for dash';
+            } else {
+                flashcardKeyInstruction.textContent = 'Press your CW key to practice';
+            }
+        }
+
+        // Reset flashcard CW input
+        function resetFlashcardCwInput() {
+            flashcardCwState.currentCharacter = '';
+            flashcardCurrentCharDisplay.textContent = 'None';
+            flashcardKeyOutput.classList.add('hidden');
+            flashcardCwOutput.textContent = 'Your CW input will appear here...';
+            flashcardKeyTestArea.classList.remove('active');
+            
+            if (flashcardCwState.characterTimeout) {
+                clearTimeout(flashcardCwState.characterTimeout);
+                flashcardCwState.characterTimeout = null;
+            }
+        }
+
+        // Update flashcard CW output display
+        function updateFlashcardCwOutput() {
+            let displayText = '';
+            if (flashcardCwState.currentCharacter) {
+                displayText = `Your input: [${flashcardCwState.currentCharacter}]`;
+            }
+            flashcardCwOutput.textContent = displayText || 'Your CW input will appear here...';
+            
+            // Update current character display
+            flashcardCurrentCharDisplay.textContent = flashcardCwState.currentCharacter || 'None';
+        }
+
+        // Flashcard key down handler
+        function flashcardKeyDown() {
+            // Clear any existing character timeout
+            if (flashcardCwState.characterTimeout) {
+                clearTimeout(flashcardCwState.characterTimeout);
+                flashcardCwState.characterTimeout = null;
+            }
+            
+            flashcardCwState.keyDownTime = Date.now();
+            flashcardKeyTestArea.classList.add('active');
+            flashcardKeyOutput.textContent = 'KEY DOWN';
+            flashcardKeyOutput.classList.remove('hidden');
+            
+            // Play sound if enabled
+            if (flashcardCwState.soundEnabled && audioState.audioContext) {
+                startTone();
+            }
+        }
+
+        // Flashcard key up handler
+        function flashcardKeyUp() {
+            const duration = Date.now() - flashcardCwState.keyDownTime;
+            flashcardKeyTestArea.classList.remove('active');
+            flashcardKeyOutput.textContent = `KEY UP (${Math.round(duration)}ms)`;
+            
+            // Stop sound if playing
+            if (audioState.isPlaying) {
+                stopTone();
+            }
+            
+            // Use the same timing as main CW Key
+            if (duration < cwKeyState.dotDuration * 1.5) {
+                // Dot
+                flashcardCwState.currentCharacter += '.';
+                flashcardKeyOutput.textContent += ' - DOT';
+            } else {
+                // Dash
+                flashcardCwState.currentCharacter += '-';
+                flashcardKeyOutput.textContent += ' - DASH';
+            }
+            
+            // Set a timeout to complete the character
+            flashcardCwState.characterTimeout = setTimeout(() => {
+                checkFlashcardCharacter();
+            }, cwKeyState.charSpaceDuration);
+            
+            // Update the last key up time
+            flashcardCwState.lastKeyUpTime = Date.now();
+            
+            // Update output display
+            updateFlashcardCwOutput();
+        }
+
+        // Flashcard touch start handler
+        function flashcardTouchStart() {
+            // Clear any existing character timeout
+            if (flashcardCwState.characterTimeout) {
+                clearTimeout(flashcardCwState.characterTimeout);
+                flashcardCwState.characterTimeout = null;
+            }
+            
+            flashcardCwState.keyDownTime = Date.now();
+            flashcardKeyTestArea.classList.add('active');
+            flashcardKeyOutput.textContent = 'TOUCH START';
+            flashcardKeyOutput.classList.remove('hidden');
+            
+            // Play sound if enabled
+            if (flashcardCwState.soundEnabled && audioState.audioContext) {
+                startTone();
+            }
+            
+            // Set a timer to show we're in dash mode
+            flashcardCwState.touchTimer = setTimeout(() => {
+                flashcardKeyOutput.textContent = 'TOUCH START - DASH MODE';
+            }, cwKeyState.dotDuration * 1.5);
+        }
+
+        // Flashcard touch end handler
+        function flashcardTouchEnd() {
+            if (!flashcardCwState.keyDownTime) return;
+            
+            const duration = Date.now() - flashcardCwState.keyDownTime;
+            flashcardKeyTestArea.classList.remove('active');
+            flashcardKeyOutput.textContent = `TOUCH END (${Math.round(duration)}ms)`;
+            
+            // Clear the dash mode timer
+            if (flashcardCwState.touchTimer) {
+                clearTimeout(flashcardCwState.touchTimer);
+                flashcardCwState.touchTimer = null;
+            }
+            
+            // Stop sound if playing
+            if (audioState.isPlaying) {
+                stopTone();
+            }
+            
+            // Determine if it's a dot or dash based on duration
+            if (duration < cwKeyState.dotDuration * 1.5) {
+                // Dot
+                flashcardCwState.currentCharacter += '.';
+                flashcardKeyOutput.textContent += ' - DOT';
+            } else {
+                // Dash
+                flashcardCwState.currentCharacter += '-';
+                flashcardKeyOutput.textContent += ' - DASH';
+            }
+            
+            // Set a timeout to complete the character
+            flashcardCwState.characterTimeout = setTimeout(() => {
+                checkFlashcardCharacter();
+            }, cwKeyState.charSpaceDuration);
+            
+            // Update the last key up time
+            flashcardCwState.lastKeyUpTime = Date.now();
+            
+            // Update output display
+            updateFlashcardCwOutput();
+            
+            // Reset key down time
+            flashcardCwState.keyDownTime = 0;
+        }
+
+        // Check the flashcard character
+        function checkFlashcardCharacter() {
+            if (flashcardCwState.currentCharacter) {
+                const currentChar = currentCardSet[currentCardIndex];
+                const targetCode = morseCode[currentChar];
+                
+                // Update target code display
+                flashcardTargetCodeDisplay.textContent = targetCode;
+                
+                // Compare input with target
+                if (flashcardCwState.currentCharacter === targetCode) {
+                    flashcardCwOutput.textContent = `✓ Correct! "${currentChar}" = ${targetCode}`;
+                    flashcardCwOutput.style.color = '#4CAF50';
+                    
+                    // Mark as learned
+                    userProgress.learnedChars.add(currentChar);
+                    userProgress.lettersLearned = userProgress.learnedChars.size;
+                    updateProgressDisplay();
+                    saveProgress();
+                } else {
+                    flashcardCwOutput.textContent = `✗ Try again. Your input: ${flashcardCwState.currentCharacter}, Target: ${targetCode}`;
+                    flashcardCwOutput.style.color = '#b21f1f';
+                }
+                
+                // Clear current character for next attempt
+                flashcardCwState.currentCharacter = '';
+                flashcardCurrentCharDisplay.textContent = 'None';
+            }
+        }
+
+        // Show the target code
+        function showFlashcardTargetCode() {
+            const currentChar = currentCardSet[currentCardIndex];
+            const targetCode = morseCode[currentChar];
+            flashcardTargetCodeDisplay.textContent = targetCode;
+            
+            // Also play the sound
+            playCharacter(currentChar);
         }
 
         // Check practice progress
@@ -2053,6 +2365,12 @@
             
             // Hide the code initially
             flashcardCodeElement.classList.add('hidden');
+            
+            // Reset flashcard CW practice
+            resetFlashcardCwInput();
+            flashcardTargetCodeDisplay.textContent = '?';
+            flashcardCwOutput.textContent = 'Your CW input will appear here...';
+            flashcardCwOutput.style.color = 'inherit';
             
             // Increment flashcards viewed counter
             userProgress.flashcardsViewed++;
@@ -2240,6 +2558,13 @@
                 cwKeyState.currentCharacter = '';
                 currentCharDisplay.textContent = 'None';
                 currentWordDisplay.textContent = 'None';
+                
+                // Clear any pending timeouts
+                if (cwKeyState.characterTimeout) {
+                    clearTimeout(cwKeyState.characterTimeout);
+                    cwKeyState.characterTimeout = null;
+                }
+                
                 updateCwOutput();
             });
             
@@ -2333,15 +2658,7 @@
                     touchEnd();
                 }
             });
-            
-            // Also handle word space timeout
-            setInterval(() => {
-                if (cwKeyState.currentWord && cwKeyState.lastKeyUpTime && 
-                    (Date.now() - cwKeyState.lastKeyUpTime) > cwKeyState.wordSpaceDuration) {
-                    processWordSpace();
-                }
-            }, 100);
-            
+
             // Audio event listeners
             audioFrequencyElement.addEventListener('input', () => {
                 audioState.frequency = parseInt(audioFrequencyElement.value);
@@ -2399,6 +2716,77 @@
                     e.preventDefault();
                     addPracticePhrase();
                 }
+            });
+
+            // Flashcard CW Practice event listeners
+            flashcardKeyTestArea.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                const cwMode = keyMode.value;
+                if (cwMode === 'keyboard' || cwMode === 'touch') {
+                    flashcardKeyDown();
+                }
+            });
+
+            flashcardKeyTestArea.addEventListener('mouseup', (e) => {
+                e.preventDefault();
+                const cwMode = keyMode.value;
+                if (cwMode === 'keyboard' || cwMode === 'touch') {
+                    flashcardKeyUp();
+                }
+            });
+
+            flashcardKeyTestArea.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                if (keyMode.value === 'touch') {
+                    flashcardTouchStart();
+                }
+            });
+
+            flashcardKeyTestArea.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                if (keyMode.value === 'touch') {
+                    flashcardTouchEnd();
+                }
+            });
+
+            flashcardClearKeyButton.addEventListener('click', () => {
+                resetFlashcardCwInput();
+            });
+
+            flashcardCheckCodeButton.addEventListener('click', () => {
+                checkFlashcardCharacter();
+            });
+
+            flashcardShowCodeButton.addEventListener('click', () => {
+                showFlashcardTargetCode();
+            });
+
+            // Use the same keyboard input as main CW Key
+            document.addEventListener('keydown', (e) => {
+                if (e.code === 'Space' && !e.repeat) {
+                    // Check if we're in the flashcard tab
+                    const flashcardTab = document.getElementById('flashcards');
+                    if (flashcardTab.classList.contains('active')) {
+                        e.preventDefault();
+                        flashcardKeyDown();
+                    }
+                }
+            });
+
+            document.addEventListener('keyup', (e) => {
+                if (e.code === 'Space') {
+                    // Check if we're in the flashcard tab
+                    const flashcardTab = document.getElementById('flashcards');
+                    if (flashcardTab.classList.contains('active')) {
+                        e.preventDefault();
+                        flashcardKeyUp();
+                    }
+                }
+            });
+
+            // Update flashcard instructions when CW mode changes
+            keyMode.addEventListener('change', () => {
+                updateFlashcardKeyInstruction();
             });
         }
 
