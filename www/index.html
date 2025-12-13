@@ -735,11 +735,92 @@
 
         <!-- About tab -->
         <div class="tab-content" id="about">
-            <h2>About</h2>
+            <h2>About Morse Code Learning App</h2>
             <div class="about-container">
-                About text...
+                <p>Welcome to the Morse Code Learning App - a comprehensive, progressive web application designed to help you learn, practice, and master Morse code efficiently and enjoyably.</p>
+                
+                <h3>Features</h3>
+                <ul style="margin-left: 20px; margin-bottom: 20px;">
+                    <li><strong>Learn:</strong> Complete Morse code reference table with interactive character learning</li>
+                    <li><strong>Practice:</strong> Convert text to Morse and vice versa with audio playback</li>
+                    <li><strong>Audio Training:</strong> Customizable Morse code audio with adjustable speed, frequency, and volume</li>
+                    <li><strong>CW Key Interface:</strong> Virtual CW key with keyboard, touch, mouse, and Web Serial API support</li>
+                    <li><strong>Flashcards:</strong> Interactive flashcard system for memorization</li>
+                    <li><strong>Progress Tracking:</strong> Track your learning progress with statistics</li>
+                    <li><strong>Phrase Management:</strong> Save, import, export, and organize practice phrases</li>
+                    <li><strong>Offline Capable:</strong> Works without internet connection (PWA)</li>
+                    <li><strong>Responsive Design:</strong> Works on desktop, tablet, and mobile devices</li>
+                </ul>
+                
+                <h3>Technical Details</h3>
+                <p>This application is built using modern web technologies:</p>
+                <ul style="margin-left: 20px; margin-bottom: 20px;">
+                    <li>HTML5, CSS3, and Vanilla JavaScript</li>
+                    <li>Web Audio API for Morse code sound generation</li>
+                    <li>Web Serial API for hardware CW key support (experimental)</li>
+                    <li>Progressive Web App (PWA) with service worker</li>
+                    <li>LocalStorage for data persistence</li>
+                    <li>Responsive CSS Grid and Flexbox layouts</li>
+                </ul>
+                
+                <h3>Morse Code Timing</h3>
+                <p>The app uses standard PARIS timing calculation:</p>
+                <ul style="margin-left: 20px; margin-bottom: 20px;">
+                    <li>Dot duration = 1 time unit</li>
+                    <li>Dash duration = 3 time units</li>
+                    <li>Intra-character space = 1 time unit</li>
+                    <li>Character space = 3 time units</li>
+                    <li>Word space = 7 time units</li>
+                    <li>PARIS word = 50 time units (standard for WPM calculation)</li>
+                </ul>
+                <p>Words Per Minute (WPM) calculation: Time unit = 1200 / WPM (in milliseconds)</p>
+                
+                <h3>Project Information</h3>
+                <div style="background-color: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 8px; margin-top: 10px;">
+                    <p><strong>GitHub Repository:</strong> <a href="https://github.com/souzamonteiro/morsecodewebapp.git" style="color: #fdbb2d;" target="_blank">morsecodewebapp</a></p>
+                    <p><strong>Author:</strong> Roberto Luiz Souza Monteiro</p>
+                    <p><strong>License:</strong> Apache License 2.0</p>
+                    <p><strong>Version:</strong> 1.0.0</p>
+                </div>
+                
+                <h3>License</h3>
+                <p>Copyright © 2024 Roberto Luiz Souza Monteiro</p>
+                <p>Licensed under the Apache License, Version 2.0 (the "License");
+                you may not use this file except in compliance with the License.
+                You may obtain a copy of the License at:</p>
+                <p style="text-align: center; font-family: monospace; background-color: rgba(0,0,0,0.3); padding: 10px; border-radius: 5px;">
+                    http://www.apache.org/licenses/LICENSE-2.0
+                </p>
+                <p>Unless required by applicable law or agreed to in writing, software
+                distributed under the License is distributed on an "AS IS" BASIS,
+                WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                See the License for the specific language governing permissions and
+                limitations under the License.</p>
+                
+                <h3>Acknowledgments</h3>
+                <p>Special thanks to:</p>
+                <ul style="margin-left: 20px;">
+                    <li>Samuel F. B. Morse and Alfred Vail for inventing Morse code</li>
+                    <li>The amateur radio community for preserving and promoting CW</li>
+                    <li>All open-source contributors to web audio and serial APIs</li>
+                    <li>Testers and users providing valuable feedback</li>
+                </ul>
+                
+                <h3>Getting Help</h3>
+                <p>For issues, feature requests, or contributions:</p>
+                <ol style="margin-left: 20px;">
+                    <li>Check the <a href="https://github.com/souzamonteiro/morsecodewebapp.git/issues" style="color: #fdbb2d;" target="_blank">GitHub Issues</a> page</li>
+                    <li>Ensure your browser supports Web Audio API and Web Serial API (for hardware key)</li>
+                    <li>For audio issues, check browser permissions and update audio drivers</li>
+                    <li>Clear browser cache if experiencing persistent issues</li>
+                </ol>
+                
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.2); text-align: center;">
+                    <p style="opacity: 0.8;">Made with ❤️ for the amateur radio and Morse code community</p>
+                    <p style="font-size: 0.9em; opacity: 0.6;">"CQ CQ CQ DE [Your Call Sign] K"</p>
+                </div>
             </div>
-        </div>
+        </div>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               </div>-->>
     </div>
 
     <script>
