@@ -1056,6 +1056,12 @@
 
         // Initialize the app
         function init() {
+            // Load audio settings from localStorage
+            loadAudioSettings();
+
+            // Load CW settings from localStorage  
+            loadCwSettings();
+
             // Load user progress from localStorage
             loadProgress();
             
@@ -1086,6 +1092,52 @@
             
             // Set up event listeners
             setupEventListeners();
+        }
+
+        // Save CW settings to localStorage
+        function saveCwSettings() {
+            const cwSettings = {
+                speed: cwKeyState.speed,
+                soundEnabled: cwKeyState.soundEnabled,
+                keyMode: keyMode.value
+            };
+            localStorage.setItem('morseCodeCwSettings', JSON.stringify(cwSettings));
+        }
+
+        // Load CW settings from localStorage
+        function loadCwSettings() {
+            const savedSettings = localStorage.getItem('morseCodeCwSettings');
+            if (savedSettings) {
+                try {
+                    const settings = JSON.parse(savedSettings);
+                    cwKeyState.speed = settings.speed || 15;
+                    cwKeyState.soundEnabled = settings.soundEnabled !== undefined ? settings.soundEnabled : true;
+                    
+                    // Update UI controls
+                    cwSpeed.value = cwKeyState.speed;
+                    speedValue.textContent = `${cwKeyState.speed} WPM`;
+                    
+                    if (settings.keyMode) {
+                        keyMode.value = settings.keyMode;
+                        updateKeyInstruction();
+                        updateFlashcardKeyInstruction();
+                    }
+                    
+                    // Update button states
+                    if (cwKeyState.soundEnabled) {
+                        enableSoundButton.textContent = 'Disable Sound';
+                        enableSoundButton.style.backgroundColor = '#4CAF50';
+                    } else {
+                        enableSoundButton.textContent = 'Enable Sound';
+                        enableSoundButton.style.backgroundColor = '#fdbb2d';
+                    }
+                    
+                    // Update timing
+                    updateCwTiming();
+                } catch (e) {
+                    console.error('Error loading CW settings:', e);
+                }
+            }
         }
 
         // Initialize CW Key functionality
@@ -1165,6 +1217,44 @@
                 keyTestInstruction.textContent = 'Left click for dot, Right click for dash (click here to focus)';
             } else {
                 keyTestInstruction.textContent = 'Press your CW key to test';
+            }
+        }
+
+        // Save audio settings to localStorage
+        function saveAudioSettings() {
+            const audioSettings = {
+                frequency: audioState.frequency,
+                volume: audioState.volume,
+                speed: audioState.speed
+            };
+            localStorage.setItem('morseCodeAudioSettings', JSON.stringify(audioSettings));
+        }
+
+        // Load audio settings from localStorage
+        function loadAudioSettings() {
+            const savedSettings = localStorage.getItem('morseCodeAudioSettings');
+            if (savedSettings) {
+                try {
+                    const settings = JSON.parse(savedSettings);
+                    audioState.frequency = settings.frequency || 600;
+                    audioState.volume = settings.volume || 0.5;
+                    audioState.speed = settings.speed || 15;
+                    
+                    // Update UI controls to match loaded values
+                    audioFrequencyElement.value = audioState.frequency;
+                    frequencyValueElement.textContent = `${audioState.frequency} Hz`;
+                    
+                    audioSpeedElement.value = audioState.speed;
+                    audioSpeedValueElement.textContent = `${audioState.speed} WPM`;
+                    
+                    audioVolumeElement.value = Math.round(audioState.volume * 100);
+                    volumeValueElement.textContent = `${Math.round(audioState.volume * 100)}%`;
+                    
+                    // Update audio timing
+                    updateAudioTiming();
+                } catch (e) {
+                    console.error('Error loading audio settings:', e);
+                }
             }
         }
 
@@ -2512,13 +2602,22 @@
             
             // Reset progress
             resetProgressButton.addEventListener('click', () => {
-                if (confirm('Are you sure you want to reset all progress?')) {
+                if (confirm('Are you sure you want to reset all progress and settings?')) {
                     userProgress = {
                         lettersLearned: 0,
                         practiceSessions: 0,
                         flashcardsViewed: 0,
                         learnedChars: new Set()
                     };
+                    
+                    // Also reset audio and CW settings to defaults
+                    localStorage.removeItem('morseCodeAudioSettings');
+                    localStorage.removeItem('morseCodeCwSettings');
+                    
+                    // Reload default settings
+                    loadAudioSettings();
+                    loadCwSettings();
+                    
                     updateProgressDisplay();
                     saveProgress();
                     generateMorseTable();
@@ -2530,10 +2629,13 @@
                 cwKeyState.speed = parseInt(cwSpeed.value);
                 speedValue.textContent = `${cwKeyState.speed} WPM`;
                 updateCwTiming();
+                saveCwSettings();
             });
-            
+
             keyMode.addEventListener('change', () => {
                 updateKeyInstruction();
+                updateFlashcardKeyInstruction();
+                saveCwSettings();
             });
             
             connectKeyButton.addEventListener('click', () => {
@@ -2592,6 +2694,7 @@
                     enableSoundButton.textContent = 'Enable Sound';
                     enableSoundButton.style.backgroundColor = '#fdbb2d';
                 }
+                saveCwSettings();
             });
             
             // Keyboard input for CW key
@@ -2663,17 +2766,20 @@
             audioFrequencyElement.addEventListener('input', () => {
                 audioState.frequency = parseInt(audioFrequencyElement.value);
                 frequencyValueElement.textContent = `${audioState.frequency} Hz`;
+                saveAudioSettings();
             });
-            
+
             audioSpeedElement.addEventListener('input', () => {
                 audioState.speed = parseInt(audioSpeedElement.value);
                 audioSpeedValueElement.textContent = `${audioState.speed} WPM`;
                 updateAudioTiming();
+                saveAudioSettings();
             });
-            
+
             audioVolumeElement.addEventListener('input', () => {
                 audioState.volume = parseInt(audioVolumeElement.value) / 100;
                 volumeValueElement.textContent = `${audioVolumeElement.value}%`;
+                saveAudioSettings();
             });
             
             playAudioTextButton.addEventListener('click', () => {
