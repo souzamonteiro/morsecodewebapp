@@ -2841,6 +2841,14 @@
                 }
             });
 
+            // Prevent context menu on right click in mouse mode
+            flashcardKeyTestArea.addEventListener('contextmenu', (e) => {
+                if (keyMode.value === 'mouse') {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+
             flashcardKeyTestArea.addEventListener('touchstart', (e) => {
                 e.preventDefault();
                 if (keyMode.value === 'touch') {
