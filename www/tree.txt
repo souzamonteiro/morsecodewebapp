@@ -1,4 +1,5 @@
 .
+├── i18n.js
 ├── icons
 │   ├── apple-touch-icon.png
 │   ├── favicon-16.png
@@ -21,4 +22,4 @@
 ├── sw.js
 └── tree.txt
 
-2 directories, 20 files
+2 directories, 21 files

@@ -2,6 +2,7 @@ const CACHE_NAME = 'morsecodewebapp-v4';
 const urlsToCache = [
   './',
   './index.html',
+  './i18n.js',
   './manifest.json',
   './icons/favicon.ico',
   './icons/icon-16x16.png',
