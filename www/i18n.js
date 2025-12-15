@@ -689,9 +689,9 @@ const I18N = {
             'en': 'English',
             'pt': 'Português',
             'es': 'Español',
-            'fr': 'Français',
-            'it': 'Italiano',
-            'de': 'Deutsch'
+            //'fr': 'Français',
+            //'it': 'Italiano',
+            //'de': 'Deutsch'
         };
         
         let optionsHTML = '';
