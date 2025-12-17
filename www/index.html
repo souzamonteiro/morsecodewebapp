@@ -548,7 +548,7 @@
                     </div>
                     
                     <div class="input-group">
-                        <label>Saved Phrases (<span id="phraseCount">0</span>):</label>
+                        <label><span>Saved Phrases</span> (<span id="phraseCount">0</span>):</label>
                         <div class="phrases-list" id="phrasesList">
                             <!-- Phrases will be loaded here -->
                         </div>
@@ -1079,6 +1079,7 @@
             
             // Initialize CW Key
             initCwKey();
+            loadCwSettings();
             
             // Initialize Audio
             initAudio();
@@ -1274,7 +1275,7 @@
                 audioSpeedValueElement.textContent = `${audioSpeedElement.value} WPM`;
                 volumeValueElement.textContent = `${audioVolumeElement.value}%`;
                 
-                audioResultElement.textContent = 'Audio system ready';
+                audioResultElement.textContent = 'Audio status: Ready';
             } catch (error) {
                 console.error('Error initializing audio:', error);
                 audioResultElement.textContent = 'Audio not supported in this browser';
