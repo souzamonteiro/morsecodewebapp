@@ -168,7 +168,7 @@ const I18N = {
             'Acknowledgments': 'Acknowledgments',
             'Getting Help': 'Getting Help',
             'Made with ❤️ for the amateur radio and Morse code community': 'Made with ❤️ for the amateur radio and Morse code community',
-            '"CQ CQ CQ DE [Your Call Sign] K"': '"CQ CQ CQ DE [Your Call Sign] K"',
+            '"CQ CQ CQ DE PU6RLS K"': '"CQ CQ CQ DE PU6RLS K"',
             
             // === ALERT MESSAGES ===
             'Please enter a phrase': 'Please enter a phrase',
@@ -368,7 +368,7 @@ const I18N = {
             'Acknowledgments': 'Agradecimentos',
             'Getting Help': 'Obtendo Ajuda',
             'Made with ❤️ for the amateur radio and Morse code community': 'Feito com ❤️ para a comunidade de rádio amador e código Morse',
-            '"CQ CQ CQ DE [Your Call Sign] K"': '"CQ CQ CQ DE [Seu Indicativo] K"',
+            '"CQ CQ CQ DE PU6RLS K"': '"CQ CQ CQ DE PU6RLS K"',
             
             // === ALERT MESSAGES ===
             'Please enter a phrase': 'Por favor, digite uma frase',
@@ -567,7 +567,7 @@ const I18N = {
             'Acknowledgments': 'Agradecimientos',
             'Getting Help': 'Obteniendo Ayuda',
             'Made with ❤️ for the amateur radio and Morse code community': 'Hecho con ❤️ para la comunidad de radioaficionados y código Morse',
-            '"CQ CQ CQ DE [Your Call Sign] K"': '"CQ CQ CQ DE [Tu Indicativo] K"',
+            '"CQ CQ CQ DE PU6RLS K"': '"CQ CQ CQ DE PU6RLS K"',
             
             // === ALERT MESSAGES ===
             'Please enter a phrase': 'Por favor, introduce una frase',
