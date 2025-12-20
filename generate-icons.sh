@@ -49,7 +49,7 @@ cat > www/manifest.json << EOF
 {
   "name": "Morse Code Learning App",
   "short_name": "MorseCode",
-  "start_url": "/",
+  "start_url": "./index.html",
   "display": "standalone",
   "theme_color": "#1a2a6c",
   "background_color": "#1a2a6c",
