@@ -165,8 +165,6 @@ const I18N = {
             'License:': 'License:',
             'Version:': 'Version:',
             'License': 'License',
-            'Acknowledgments': 'Acknowledgments',
-            'Getting Help': 'Getting Help',
             'Made with ❤️ for the amateur radio and Morse code community': 'Made with ❤️ for the amateur radio and Morse code community',
             '"CQ CQ CQ DE PU6RLS K"': '"CQ CQ CQ DE PU6RLS K"',
             
@@ -365,8 +363,6 @@ const I18N = {
             'License:': 'Licença:',
             'Version:': 'Versão:',
             'License': 'Licença',
-            'Acknowledgments': 'Agradecimentos',
-            'Getting Help': 'Obtendo Ajuda',
             'Made with ❤️ for the amateur radio and Morse code community': 'Feito com ❤️ para a comunidade de rádio amador e código Morse',
             '"CQ CQ CQ DE PU6RLS K"': '"CQ CQ CQ DE PU6RLS K"',
             
@@ -564,8 +560,6 @@ const I18N = {
             'License:': 'Licencia:',
             'Version:': 'Versión:',
             'License': 'Licencia',
-            'Acknowledgments': 'Agradecimientos',
-            'Getting Help': 'Obteniendo Ayuda',
             'Made with ❤️ for the amateur radio and Morse code community': 'Hecho con ❤️ para la comunidad de radioaficionados y código Morse',
             '"CQ CQ CQ DE PU6RLS K"': '"CQ CQ CQ DE PU6RLS K"',
             
