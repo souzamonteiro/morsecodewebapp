@@ -227,6 +227,18 @@
             color: #fdbb2d;
         }
         
+        .flashcard-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .flashcard-controls button {
+            flex: 1;
+            min-width: 120px;
+        }
+
         .hidden {
             display: none;
         }
@@ -405,6 +417,18 @@
         }
         
         /* Phrase management */
+        .phrases-convert-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .phrases-convert-controls button {
+            flex: 1;
+            min-width: 120px;
+        }
+
         .phrases-management {
             background-color: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
@@ -530,13 +554,14 @@
                 <div class="input-group">
                     <label for="textInput">Text to convert to Morse:</label>
                     <textarea id="textInput" placeholder="Enter text to convert to Morse code"></textarea>
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                        <button id="convertToMorse">Convert to Morse</button>
-                        <button id="playText">Play as Audio</button>
-                        <button id="getRandomPhrase">Random Phrase</button>
-                    </div>
                 </div>
-                
+
+                <div class="phrases-convert-controls">
+                    <button id="convertToMorse">Convert to Morse</button>
+                    <button id="playText">Play as Audio</button>
+                    <button id="getRandomPhrase">Random Phrase</button>
+                </div>
+
                 <div class="input-group">
                     <label for="morseInput">Morse code to decode:</label>
                     <textarea id="morseInput" placeholder="Enter Morse code (use . for dots and - for dashes, separate letters with spaces)"></textarea>
@@ -705,7 +730,7 @@
                 <div class="flashcard-code hidden" id="flashcardCode">.-</div>
             </div>
             
-            <div class="controls">
+            <div class="flashcard-controls">
                 <button id="prevCard">Previous</button>
                 <button id="nextCard">Next</button>
                 <button id="flipCard">Reveal Code</button>
