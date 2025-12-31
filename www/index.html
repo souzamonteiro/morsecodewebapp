@@ -128,6 +128,16 @@
             flex-direction: column;
             gap: 20px;
         }
+
+        .practice-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .practice-controls button {
+            flex: 1;
+        }
         
         .input-group {
             display: flex;
@@ -467,11 +477,11 @@
                 grid-template-columns: 1fr;
             }
             
-            .cw-controls {
+            .phrases-management-controls {
                 flex-wrap: wrap;
             }
             
-            .cw-controls button {
+            .phrases-management-controls-button {
                 min-width: 120px;
             }
             
@@ -539,7 +549,7 @@
                     <div class="input-group">
                         <label for="newPhrase">Add new practice phrase:</label>
                         <textarea id="newPhrase" placeholder="Enter a new practice phrase"></textarea>
-                        <div style="display: flex; gap: 10px;">
+                        <div class="phrases-management-controls">
                             <button id="addPhrase">Add Phrase</button>
                             <button id="importPhrases">Import Phrases</button>
                             <button id="exportPhrases">Export Phrases</button>
@@ -581,6 +591,8 @@
                     <textarea id="audioText" placeholder="Enter text to play as Morse code audio">SOS</textarea>
                     <button id="playAudioText">Play Morse Code</button>
                 </div>
+                
+                <br />
                 
                 <div class="audio-settings">
                     <div class="input-group">
