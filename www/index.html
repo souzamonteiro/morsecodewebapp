@@ -417,6 +417,18 @@
         }
         
         /* Phrase management */
+        .morse-convert-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .morse-convert-controls button {
+            flex: 1;
+            min-width: 120px;
+        }
+
         .phrases-convert-controls {
             display: flex;
             flex-wrap: wrap;
@@ -565,10 +577,11 @@
                 <div class="input-group">
                     <label for="morseInput">Morse code to decode:</label>
                     <textarea id="morseInput" placeholder="Enter Morse code (use . for dots and - for dashes, separate letters with spaces)"></textarea>
-                    <div style="display: flex; gap: 10px;">
-                        <button id="convertToText">Convert to Text</button>
-                        <button id="playMorse">Play as Audio</button>
-                    </div>
+                </div>
+
+                <div class="morse-convert-controls">
+                    <button id="convertToText">Convert to Text</button>
+                    <button id="playMorse">Play as Audio</button>
                 </div>
                 
                 <div class="result" id="practiceResult">
