@@ -481,6 +481,48 @@
         
         /* Responsive design */
         @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .tabs {
+                flex-wrap: wrap;
+            }
+            
+            .tab {
+                flex: 1;
+                min-width: 120px;
+                text-align: center;
+            }
+            
+            .morse-table {
+                grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+            }
+            
+            .flashcard-char {
+                font-size: 3rem;
+            }
+            
+            .key-settings, .audio-settings {
+                grid-template-columns: 1fr;
+            }
+            
+            .phrases-management-controls {
+                flex-wrap: wrap;
+            }
+            
+            .phrases-management-controls-button {
+                min-width: 120px;
+            }
+            
+            .key-test-area {
+                min-height: 120px;
+            }
+
             .practice-area .input-group:first-child > div button,
             .practice-area .input-group:nth-child(3) > div button,
             .phrases-management-controls button {
